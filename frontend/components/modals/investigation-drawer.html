@@ -1,0 +1,183 @@
+  <div class="drawer-overlay" id="investigation-drawer-overlay" onclick="closeInvestigationDrawer(event)">
+    <div class="drawer-container" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div class="drawer-header-title">
+          <h3 id="drawer-tx-id">TX100207 Investigation Workspace</h3>
+          <p id="drawer-tx-meta">Customer: CUST03955 • Outflow: ৳30,573.32</p>
+        </div>
+        <button class="btn btn-icon" onclick="closeInvestigationDrawerDirectly()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Section 1: Transaction Core Facts -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            Section 1: Transaction Core Facts
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;" id="drawer-core-facts">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 2: Risk Assessment Summary Banner -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Section 2: Risk Assessment Summary
+          </div>
+          <div class="risk-banner risk-banner-high" id="drawer-risk-banner">
+            <div>
+              <div style="font-size:12px; text-transform:uppercase; font-weight:700;" id="drawer-risk-tier-label">High Risk Tier</div>
+              <div class="risk-score-badge" id="drawer-risk-score-val">99.9</div>
+              <div style="font-size:12px; font-weight:600; margin-top:4px;" id="drawer-risk-action-val">Directive: HUMAN_REVIEW (Analyst Queue)</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge badge-high">XGBoost Calibrated</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Chronological Forensic Timeline -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            Section 3: Chronological Forensic Timeline (Risk Story)
+          </div>
+          <div class="timeline-list" id="drawer-timeline-list">
+            <!-- Timeline milestones injected -->
+          </div>
+        </div>
+
+        <!-- Section 4: Potential Scam Pattern Intelligence -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Section 4: Potential Scam Pattern Intelligence
+          </div>
+          <div id="drawer-scam-patterns-list" style="display:flex; flex-direction:column; gap:10px;">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 5: Account Takeover (ATO) Risk Indicators -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Section 5: Account Takeover (ATO) Threat Analysis
+          </div>
+          <div id="drawer-ato-container">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 6: Top Contributing Signals Breakdown (SHAP Waterfall) -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Section 6: SHAP Feature Waterfall Attribution
+          </div>
+          <div id="drawer-shap-waterfall">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 7: Customer Baseline vs Current Transaction Comparison -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Section 7: Customer Baseline vs Current Transaction
+          </div>
+          <div id="drawer-baseline-comparison">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 8: Entity Relationship & Mule Graph Intelligence Summary -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            Section 8: Entity Network Graph Summary
+          </div>
+          <div id="drawer-network-summary" style="font-size:13px; color:var(--text-secondary);">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+
+        <!-- Section 9: Senior Fraud Specialist Live Desk & Real-Time Consultation (Tariq Hassan) -->
+        <div class="drawer-section">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Section 9: Senior Fraud Specialist Live Desk (Tariq Hassan, Desk #8841)
+          </div>
+          <div class="chat-container">
+            <div class="chat-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="chat-header-avatar">TH</div>
+                <div>
+                  <div style="font-size:13px; font-weight:700;">Tariq Hassan</div>
+                  <div id="drawer-copilot-engine-badge" style="font-size:11px; color:var(--success-green); font-weight:600;">● Active Forensic Copilot • Desk #8841</div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button class="btn btn-secondary" id="btn-gemini-key" style="padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:4px;" onclick="promptGeminiApiKey()" title="Configure Google Gemini API Key">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                  <span id="gemini-key-btn-text">Gemini AI Key</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="chat-messages" id="drawer-chat-messages">
+              <div class="chat-bubble chat-bubble-copilot">
+                I have reviewed the factual telemetry for this transaction. What specific inquiry would you like me to analyze?
+              </div>
+            </div>
+
+            <!-- Quick Inquiry Dispatch Pills -->
+            <div class="chat-quick-pills">
+              <button class="quick-pill" onclick="sendQuickChat('Is this transaction an Account Takeover (ATO)?')">ATO Check</button>
+              <button class="quick-pill" onclick="sendQuickChat('What questions should I ask the customer when calling to verify?')">Verification Checklist</button>
+              <button class="quick-pill" onclick="sendQuickChat('Why was this transaction flagged as high risk?')">Why Flagged?</button>
+              <button class="quick-pill" onclick="sendQuickChat('Is the recipient beneficiary account a money mule?')">Mule Analysis</button>
+              <button class="quick-pill" onclick="sendQuickChat('Explain the top SHAP factor attributions.')">Explain SHAP</button>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" id="drawer-chat-input" placeholder="Ask Tariq Hassan about this transaction..." onkeydown="if(event.key==='Enter') sendDrawerChatMessage()">
+              <button class="btn btn-primary" style="padding:6px 16px; font-size:12px;" onclick="sendDrawerChatMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 10: Human Analyst Review Determination & Case Escalation -->
+        <div class="drawer-section" style="background:var(--base-canvas); border:1.5px solid var(--border-subtle);">
+          <div class="drawer-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            Section 10: Human Analyst Review Determination
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <span style="font-size:12px; font-weight:600; color:var(--text-secondary);">Compliance Justification Notes:</span>
+              <button class="btn btn-secondary" style="padding:4px 12px; font-size:11px;" onclick="escalateToFormalCase()">Create Formal Case</button>
+            </div>
+            <textarea id="drawer-notes-input" style="width:100%; height:80px; padding:10px; border:1px solid var(--border-subtle); border-radius:8px; font-size:13px; font-family:inherit; outline:none; resize:none;" placeholder="Enter analyst justification notes for BFIU statutory audit..."></textarea>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:14px;">
+              <button class="btn btn-danger" style="padding:10px 8px; font-size:12px;" onclick="submitAnalystDetermination('CONFIRM_SUSPICIOUS')">
+                Confirm Suspicious
+              </button>
+              <button class="btn btn-primary" style="padding:10px 8px; font-size:12px; background:var(--success-green); color:#FFFFFF;" onclick="submitAnalystDetermination('MARK_LEGITIMATE')">
+                Mark Legitimate
+              </button>
+              <button class="btn btn-secondary" style="padding:10px 8px; font-size:12px;" onclick="submitAnalystDetermination('NEEDS_MORE_INVESTIGATION')">
+                Needs Investigation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

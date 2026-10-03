@@ -1,0 +1,98 @@
+      <section id="behavior-view" class="view-section">
+        <div class="toolbar" style="flex-direction:column; align-items:stretch; gap:12px;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div class="search-box" style="flex:1;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="cust-search-input" value="CUST03955" placeholder="Enter Customer ID (e.g. CUST03955, 3955, or TX100207)..." oninput="debouncedLookupCustomerBehavior()" onkeydown="if(event.key === 'Enter'){ clearTimeout(window._custSearchTimer); lookupCustomerBehavior(); }">
+            </div>
+            <button class="btn btn-primary" onclick="lookupCustomerBehavior()" style="white-space:nowrap;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Lookup Baseline Profile
+            </button>
+          </div>
+          <!-- Quick Preset Chips for Easy Evaluation -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px;">
+            <span style="color:var(--text-tertiary); font-weight:600;">Quick Presets:</span>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="lookupCustomerBehavior('CUST03955')">
+              <span style="color:var(--critical-red); font-weight:700;">●</span> CUST03955 (11.6x Surge)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="lookupCustomerBehavior('CUST00001')">
+              <span style="color:var(--success-green); font-weight:700;">●</span> CUST00001 (Normal Baseline)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="lookupCustomerBehavior('CUST01126')">
+              <span style="color:var(--upay-yellow); font-weight:700;">●</span> CUST01126 (Velocity Surge)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="lookupCustomerBehavior('CUST03658')">
+              <span style="color:var(--upay-blue); font-weight:700;">●</span> CUST03658 (Dhaka Cluster)
+            </button>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Customer 30-Day Normal Baseline Profile</h3>
+              <span class="badge badge-channel" id="cust-profile-id">CUST03955</span>
+            </div>
+            <div class="card-body">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary);">Normal Average Amount</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--text-primary);" id="cust-normal-avg">৳2,429.19</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary);">Registered Devices</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--text-primary);" id="cust-device-count">2 Devices</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary);">Primary Location</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--text-primary);" id="cust-primary-loc">Nilphamari</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary);">Account Age</div>
+                  <div style="font-size:18px; font-weight:700; color:var(--text-primary);" id="cust-age-days">2,145 Days</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Behavioral Deviation Breakdown</h3>
+              <span class="badge badge-high" id="cust-deviation-badge">11.6x SURGE</span>
+            </div>
+            <div class="card-body">
+              <div id="cust-deviation-details" style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Populated via app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Customer Transaction History</h3>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tx ID</th>
+                    <th>Amount (BDT)</th>
+                    <th>Timestamp</th>
+                    <th>Channel</th>
+                    <th>Recipient</th>
+                    <th>Risk Score</th>
+                    <th>Risk Tier</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="cust-history-table">
+                  <!-- Populated via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>

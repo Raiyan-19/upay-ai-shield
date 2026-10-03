@@ -1,0 +1,312 @@
+      <section id="dashboard-view" class="view-section">
+        <!-- Executive Brand & Operations Banner -->
+        <div class="executive-hero-banner" style="background: linear-gradient(135deg, #003B70 0%, #005BAC 60%, #0077D4 100%); border-radius: 14px; padding: 22px 28px; margin-bottom: 24px; color: #ffffff; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px -5px rgba(0,91,172,0.25); position: relative; overflow: hidden;">
+          <div style="position: absolute; right: -20px; top: -40px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,205,0,0.18) 0%, rgba(255,205,0,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+          <div style="position: relative; z-index: 2; max-width: 650px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <span style="background: rgba(255,205,0,0.2); color: #FFCD00; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid rgba(255,205,0,0.4); text-transform: uppercase; letter-spacing: 0.5px;">Live Production Surveillance</span>
+              <span style="background: rgba(255,255,255,0.15); color: #ffffff; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">UCB Fintech Company Ltd</span>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 800; margin: 0 0 6px 0; letter-spacing: -0.3px; color: #ffffff;">upay AI Shield • MFS Fraud Surveillance & Intelligence</h2>
+            <p style="font-size: 13px; margin: 0; color: rgba(255,255,255,0.85); line-height: 1.5;">Autonomous real-time fraud mitigation, ATO smurfing ring tracking, and BFIU compliance auditing across 20,000 MFS customer accounts.</p>
+          </div>
+          <div style="position: relative; z-index: 2; display: flex; gap: 12px; align-items: center;">
+            <a href="#transactions" class="btn" style="background: #FFCD00; color: #003B70; font-weight: 700; font-size: 12px; padding: 9px 16px; border-radius: 8px; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              View Ledger
+            </a>
+            <a href="#model" class="btn" style="background: rgba(255,255,255,0.15); color: #ffffff; font-weight: 600; font-size: 12px; padding: 9px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              Model Validation
+            </a>
+          </div>
+        </div>
+
+        <!-- 8 Top Metric / KPI Cards Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Total Monitored</span>
+              <div class="kpi-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg></div>
+            </div>
+            <div class="kpi-value" id="kpi-total-tx">55</div>
+            <div class="kpi-subtext"><span class="trend-up">100%</span> 24h MFS Ingestion</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Low Risk (Continue)</span>
+              <div class="kpi-icon-wrap" style="background:#ECFDF5; color:#10B981;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+            </div>
+            <div class="kpi-value" style="color:var(--success-green);" id="kpi-low-risk">38 <span style="font-size:14px; font-weight:600;">(69.1%)</span></div>
+            <div class="kpi-subtext">Instant execution</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Medium (2FA Challenge)</span>
+              <div class="kpi-icon-wrap" style="background:#FFFBEB; color:#F59E0B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+            </div>
+            <div class="kpi-value" style="color:#B45309;" id="kpi-med-risk">9 <span style="font-size:14px; font-weight:600;">(16.4%)</span></div>
+            <div class="kpi-subtext">Step-Up SMS OTP</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">High Risk (Analyst Triage)</span>
+              <div class="kpi-icon-wrap" style="background:#FEF2F2; color:#EF4444;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+            </div>
+            <div class="kpi-value" style="color:var(--danger-red);" id="kpi-high-risk">8 <span style="font-size:14px; font-weight:600;">(14.5%)</span></div>
+            <div class="kpi-subtext"><span class="trend-down">Critical</span> Human Queue</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Volume Protected</span>
+              <div class="kpi-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+            </div>
+            <div class="kpi-value" id="kpi-vol-protected">৳348,500</div>
+            <div class="kpi-subtext">High-risk value audited</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Review Reduction</span>
+              <div class="kpi-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div>
+            </div>
+            <div class="kpi-value" id="kpi-review-reduction">92.1%</div>
+            <div class="kpi-subtext"><span class="trend-up">Autonomous</span> safe pass</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Est. Loss Prevented</span>
+              <div class="kpi-icon-wrap" style="background:#ECFDF5; color:#10B981;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            </div>
+            <div class="kpi-value" style="color:var(--success-green);" id="kpi-loss-prevented">৳306,680</div>
+            <div class="kpi-subtext">88% ATO mitigation rate</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <span class="kpi-title">Model ROC-AUC</span>
+              <div class="kpi-icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg></div>
+            </div>
+            <div class="kpi-value" id="kpi-model-auc">0.999</div>
+            <div class="kpi-subtext">XGBoost Calibrated</div>
+          </div>
+        </div>
+
+        <!-- Analytics Grid 1: Risk Tier Distribution & Hourly Velocity Trend -->
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                Risk Tier Distribution Breakdown
+              </h3>
+              <span class="badge badge-channel">BFIU Calibrated</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <span style="color:var(--success-green);">● Low Risk Tier (0 - 49.99)</span>
+                    <span id="tier-bar-low-pct">69.1% (38 txs)</span>
+                  </div>
+                  <div style="height:12px; background:var(--surface-muted); border-radius:6px; overflow:hidden;">
+                    <div id="tier-bar-low" style="height:100%; width:69.1%; background:var(--success-green); border-radius:6px; transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <span style="color:#B45309;">● Medium Risk Tier (50.00 - 79.99)</span>
+                    <span id="tier-bar-med-pct">16.4% (9 txs)</span>
+                  </div>
+                  <div style="height:12px; background:var(--surface-muted); border-radius:6px; overflow:hidden;">
+                    <div id="tier-bar-med" style="height:100%; width:16.4%; background:var(--warning-amber); border-radius:6px; transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <span style="color:var(--danger-red);">● High Risk Tier (80.00 - 100.00)</span>
+                    <span id="tier-bar-high-pct">14.5% (8 txs)</span>
+                  </div>
+                  <div style="height:12px; background:var(--surface-muted); border-radius:6px; overflow:hidden;">
+                    <div id="tier-bar-high" style="height:100%; width:14.5%; background:var(--danger-red); border-radius:6px; transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Hourly Velocity & Off-Hours Detection
+              </h3>
+              <span class="badge badge-medium">00:00 - 05:00 Window</span>
+            </div>
+            <div class="card-body">
+              <div id="hourly-velocity-bars" style="display:flex; align-items:flex-end; gap:6px; height:140px; padding-top:20px;">
+                <!-- Dynamically generated SVG or bar columns -->
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-tertiary); margin-top:8px;">
+                <span>00:00 (Midnight)</span>
+                <span>06:00 (Morning)</span>
+                <span>12:00 (Noon)</span>
+                <span>18:00 (Evening)</span>
+                <span>23:00 (Night)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Grid 2: Top Empirical Signals & Financial Impact Simulator -->
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                Top Empirical Risk Signals
+              </h3>
+            </div>
+            <div class="card-body">
+              <div id="top-signals-list" style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Injected via app.js -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                Operational Impact Simulator
+              </h3>
+              <span class="badge badge-low">Interactive</span>
+            </div>
+            <div class="card-body">
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Simulated Daily Transactions</span>
+                  <span id="sim-volume-label" style="font-weight:700; color:var(--upay-blue);">50,000 / day</span>
+                </div>
+                <input type="range" min="10000" max="250000" step="5000" value="50000" class="slider-input" id="sim-volume-slider" oninput="updateImpactSimulation()">
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;">
+                <div style="background:var(--surface-muted); padding:12px 16px; border-radius:12px;">
+                  <div style="font-size:11px; color:var(--text-secondary);">Manual Reviews Saved</div>
+                  <div style="font-size:18px; font-weight:800; color:var(--upay-blue);" id="sim-saved-reviews">46,055 reviews</div>
+                </div>
+                <div style="background:var(--success-tint); padding:12px 16px; border-radius:12px;">
+                  <div style="font-size:11px; color:var(--success-green);">Estimated Capital Saved</div>
+                  <div style="font-size:18px; font-weight:800; color:var(--success-green);" id="sim-saved-bdt">৳61,625,000</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Channel Intelligence Ledger -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              Transaction Channel Intelligence Ledger
+            </h3>
+            <span class="badge badge-channel">MFS Modalities</span>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Channel Modality</th>
+                    <th>Protocol / Target</th>
+                    <th>Volume Monitored</th>
+                    <th>BDT Financial Volume</th>
+                    <th>Risk Exposure Profile</th>
+                  </tr>
+                </thead>
+                <tbody id="channels-table-body">
+                  <tr>
+                    <td><strong>Mobile App (APP)</strong></td>
+                    <td>Biometric / Device Token</td>
+                    <td>28 txs (50.9%)</td>
+                    <td>৳189,450.00</td>
+                    <td><span class="badge badge-high">High ATO Vulnerability</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>USSD (*268#)</strong></td>
+                    <td>Telco SIM Network</td>
+                    <td>22 txs (40.0%)</td>
+                    <td>৳124,800.00</td>
+                    <td><span class="badge badge-medium">Social Engineering / Lottery</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Web Portal (WEB)</strong></td>
+                    <td>HTTPS Browser Auth</td>
+                    <td>3 txs (5.5%)</td>
+                    <td>৳24,500.00</td>
+                    <td><span class="badge badge-low">Credential Reuse</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Agent Counter (AGENT)</strong></td>
+                    <td>OTC Physical Cash In/Out</td>
+                    <td>2 txs (3.6%)</td>
+                    <td>৳9,750.00</td>
+                    <td><span class="badge badge-low">Mule Smurfing</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent High-Risk Anomaly Alerts Table -->
+        <div class="card">
+          <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+            <h3 class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Recent High-Risk Anomaly Alerts
+            </h3>
+            <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+              <!-- Real-time customer/tx search -->
+              <div class="search-box" style="min-width:260px; max-width:320px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="dash-cust-search" placeholder="Filter by Customer or Tx ID…"
+                  oninput="dashboardCustomerSearch(this.value)"
+                  style="font-size:13px;">
+              </div>
+              <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" onclick="navigateToView('transactions-view')">View Full Ledger</button>
+            </div>
+          </div>
+
+          <div class="card-body" style="padding:0;">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tx ID</th>
+                    <th>Customer</th>
+                    <th>Amount (BDT)</th>
+                    <th>Risk Score</th>
+                    <th>Channel</th>
+                    <th>Device</th>
+                    <th>Location</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-recent-alerts">
+                  <!-- Populated via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>

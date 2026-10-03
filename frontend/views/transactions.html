@@ -1,0 +1,71 @@
+      <section id="transactions-view" class="view-section">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="tx-search-input" placeholder="Search Tx, Customer, Receiver, Device..." oninput="handleTxSearch(this.value)">
+            </div>
+
+            <div class="filter-pills">
+              <button class="filter-pill active" onclick="setTxRiskFilter('ALL', this)">All</button>
+              <button class="filter-pill" onclick="setTxRiskFilter('HIGH', this)">High Risk</button>
+              <button class="filter-pill" onclick="setTxRiskFilter('MEDIUM', this)">Medium</button>
+              <button class="filter-pill" onclick="setTxRiskFilter('LOW', this)">Low Risk</button>
+            </div>
+          </div>
+
+          <div class="toolbar-right">
+            <select class="select-control" id="tx-channel-filter" onchange="applyTxFilters()">
+              <option value="ALL">All Channels</option>
+              <option value="APP">Mobile App</option>
+              <option value="USSD">USSD (*268#)</option>
+              <option value="WEB">Web Portal</option>
+              <option value="AGENT">Agent Counter</option>
+            </select>
+
+            <select class="select-control" id="tx-type-filter" onchange="applyTxFilters()">
+              <option value="ALL">All Transaction Types</option>
+              <option value="SEND_MONEY">Send Money (P2P)</option>
+              <option value="CASH_OUT">Cash Out</option>
+              <option value="PAYMENT">Merchant Payment</option>
+              <option value="CASH_IN">Cash In</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body" style="padding:0;">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tx ID</th>
+                    <th>Customer ID</th>
+                    <th>Amount (BDT)</th>
+                    <th>Timestamp</th>
+                    <th>Type</th>
+                    <th>Channel</th>
+                    <th>Recipient</th>
+                    <th>Device Hardware</th>
+                    <th>Risk Score</th>
+                    <th>Status Tier</th>
+                    <th>Forensic Action</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-table-body">
+                  <!-- Populated via app.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination-bar">
+              <span id="tx-pagination-info">Showing 1-25 of 55 transactions</span>
+              <div class="pagination-controls">
+                <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" id="btn-tx-prev" onclick="changeTxPage(-1)">Previous</button>
+                <span id="tx-current-page-num" style="font-weight:700; padding:0 8px;">1</span>
+                <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" id="btn-tx-next" onclick="changeTxPage(1)">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>

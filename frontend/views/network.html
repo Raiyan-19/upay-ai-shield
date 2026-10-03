@@ -1,0 +1,102 @@
+      <section id="network-view" class="view-section">
+        <div class="toolbar" style="flex-direction:column; align-items:stretch; gap:12px;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div class="search-box" style="flex:1;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="network-search-input" value="CUST03955" placeholder="Enter Customer ID (e.g. CUST03955, 3955) or Tx ID..." onkeydown="if(event.key === 'Enter') loadNetworkGraphForTx()">
+            </div>
+            <button class="btn btn-primary" onclick="loadNetworkGraphForTx()" style="white-space:nowrap;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Render Entity Graph
+            </button>
+          </div>
+          <!-- Quick Preset Chips for Evaluators -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px;">
+            <span style="color:var(--text-tertiary); font-weight:600;">Quick Presets:</span>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="loadNetworkGraphForTx('CUST03955')">
+              <span style="color:var(--critical-red); font-weight:700;">●</span> CUST03955 (Mule Ring)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="loadNetworkGraphForTx('CUST00677')">
+              <span style="color:var(--upay-yellow); font-weight:700;">●</span> CUST00677 (Shared Device)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="loadNetworkGraphForTx('CUST00001')">
+              <span style="color:var(--success-green); font-weight:700;">●</span> CUST00001 (Habitual)
+            </button>
+            <button type="button" class="btn btn-secondary" style="padding:3px 10px; font-size:11px; border-radius:14px;" onclick="loadNetworkGraphForTx('TX100207')">
+              <span style="color:var(--upay-blue); font-weight:700;">●</span> TX100207 (Critical ATO)
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+            <div>
+              <h3 class="card-title">Interactive Multi-Hop Entity Relationship Graph</h3>
+              <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0 0;">Inspect multi-hop links between Customers, Transactions, Beneficiary Wallets, and Shared Hardware</p>
+            </div>
+            <!-- Node Category Legend -->
+            <div style="display:flex; align-items:center; gap:12px; font-size:11px; font-weight:600;">
+              <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#FFCD00; display:inline-block;"></span> Customer</span>
+              <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#005BAC; display:inline-block;"></span> Transaction</span>
+              <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#10B981; display:inline-block;"></span> Beneficiary</span>
+              <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#EF4444; display:inline-block;"></span> Hardware Device</span>
+              <span style="display:inline-flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#64748B; display:inline-block;"></span> Location</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="network-svg-container" id="network-svg-wrap">
+              <svg id="network-svg-canvas">
+                <!-- SVG nodes & edges rendered here -->
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">High Beneficiary Fan-In (Money Mule Inflow)</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Receiver ID</th>
+                      <th>Unique Senders</th>
+                      <th>Total Volume (BDT)</th>
+                      <th>Avg Risk</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fanin-table-body">
+                    <!-- Injected via app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Multi-Account Hardware Sharing</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Device Hardware ID</th>
+                      <th>Shared Customers</th>
+                      <th>Total Tx Count</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shared-devices-body">
+                    <!-- Injected via app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>

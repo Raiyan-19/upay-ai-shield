@@ -1,0 +1,172 @@
+      <section id="cases-view" class="view-section">
+        <!-- Subview Navigation Tabs -->
+        <div class="toolbar" style="margin-bottom:16px;">
+          <div class="filter-pills">
+            <button class="filter-pill active" id="case-tab-all" onclick="switchCaseSubview('all')">সকল কেইস (All Cases)</button>
+            <button class="filter-pill" id="case-tab-daily" onclick="switchCaseSubview('daily')">দৈনিক কাজের হিসাব (Daily)</button>
+            <button class="filter-pill" id="case-tab-weekly" onclick="switchCaseSubview('weekly')">সাপ্তাহিক হিসাব (Weekly)</button>
+            <button class="filter-pill" id="case-tab-monthly" onclick="switchCaseSubview('monthly')">মাসিক সামগ্রিক হিসাব (Monthly)</button>
+          </div>
+        </div>
+
+        <!-- Case Status KPI Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-title">Total Cases</div>
+            <div class="kpi-value" id="case-kpi-total">16</div>
+            <div class="kpi-subtext">Compliance Queue</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Open Triage</div>
+            <div class="kpi-value" style="color:var(--danger-red);" id="case-kpi-open">4</div>
+            <div class="kpi-subtext">Awaiting analyst action</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Under Review</div>
+            <div class="kpi-value" style="color:#B45309;" id="case-kpi-review">4</div>
+            <div class="kpi-subtext">Active outreach in progress</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Resolved Determinations</div>
+            <div class="kpi-value" style="color:var(--success-green);" id="case-kpi-resolved">4</div>
+            <div class="kpi-subtext"><span class="trend-up" id="case-kpi-rate">25.0%</span> Resolution Rate</div>
+          </div>
+        </div>
+
+        <!-- Subview 1: All Cases -->
+        <div id="subview-cases-all">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="case-search-input" placeholder="Search Case ID, Customer, Analyst..." oninput="handleCaseSearch(this.value)">
+              </div>
+
+              <!-- Quick Date Presets -->
+              <div class="filter-pills">
+                <button class="filter-pill active" onclick="setCaseDateFilter('ALL', this)">All Time</button>
+                <button class="filter-pill" onclick="setCaseDateFilter('TODAY', this)">Today</button>
+                <button class="filter-pill" onclick="setCaseDateFilter('YESTERDAY', this)">Yesterday</button>
+                <button class="filter-pill" onclick="setCaseDateFilter('THIS_WEEK', this)">This Week</button>
+                <button class="filter-pill" onclick="setCaseDateFilter('THIS_MONTH', this)">This Month</button>
+              </div>
+            </div>
+
+            <div class="toolbar-right">
+              <select class="select-control" id="case-status-select" onchange="applyCaseFilters()">
+                <option value="ALL">All Statuses</option>
+                <option value="OPEN">OPEN</option>
+                <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+                <option value="NEEDS_MORE_INFORMATION">NEEDS_MORE_INFO</option>
+                <option value="RESOLVED">RESOLVED</option>
+              </select>
+
+              <select class="select-control" id="case-priority-select" onchange="applyCaseFilters()">
+                <option value="ALL">All Priorities</option>
+                <option value="CRITICAL">CRITICAL</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body" style="padding:0;">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Case ID</th>
+                      <th>Transaction ID</th>
+                      <th>Customer ID</th>
+                      <th>Status</th>
+                      <th>Priority</th>
+                      <th>Assigned Officer</th>
+                      <th>Risk Score</th>
+                      <th>Formal Decision</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cases-table-body">
+                    <!-- Populated via app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 2: Daily Breakdown -->
+        <div id="subview-cases-daily" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Daily Workload & Progress Breakdown</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Bengali Cohort</th>
+                    <th>Total Cases Triaged</th>
+                    <th>Resolved Cases</th>
+                    <th>Pending Open</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-cases-table">
+                  <!-- Injected via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 3: Weekly Trends -->
+        <div id="subview-cases-weekly" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Weekly Cohort Performance</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Weekly Period</th>
+                    <th>Total Cases</th>
+                    <th>Resolved Cases</th>
+                    <th>Daily Resolution Velocity</th>
+                  </tr>
+                </thead>
+                <tbody id="weekly-cases-table">
+                  <!-- Injected via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview 4: Monthly Executive Overview -->
+        <div id="subview-cases-monthly" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Monthly Executive Workload Overview</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Cases Handled</th>
+                    <th>Total Resolved</th>
+                    <th>Capital Protected (BDT)</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-cases-table">
+                  <!-- Injected via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>

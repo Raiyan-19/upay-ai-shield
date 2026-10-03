@@ -1,0 +1,130 @@
+      <section id="responsible-view" class="view-section">
+        <!-- View Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+              <span class="badge badge-channel" style="font-size:11px; font-weight:700;">UCB Fintech Company Ltd</span>
+              <span class="badge" style="background:#ECFDF5; color:#059669; font-weight:700;">BFIU Master Circular 24 Audited</span>
+            </div>
+            <h2 style="font-size:22px; font-weight:800; color:var(--text-primary); margin:0 0 4px 0;">Responsible AI & Regulatory Governance Framework</h2>
+            <p style="font-size:13px; color:var(--text-secondary); margin:0;">Enterprise safety mandates, human-in-the-loop controls, and ethical safeguards governing the upay AI Shield platform.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <a href="/outputs/metrics.json" target="_blank" class="btn btn-secondary" style="font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              Compliance Metrics JSON
+            </a>
+          </div>
+        </div>
+
+        <!-- 6 Responsible AI Principles Grid -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); margin-bottom:28px;">
+          <div class="card" style="border-left:4px solid var(--upay-blue);">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:rgba(0,91,172,0.1); color:var(--upay-blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">1</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Strict Human-in-the-Loop</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">The AI system serves solely as decision-support. No autonomous freezing of funds or accounts is ever permitted. Qualified human fraud analysts hold sole consequential authority.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left:4px solid #10B981;">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#ECFDF5; color:#10B981; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">2</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Mathematical Explainability (XAI)</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">Every risk score is decomposed into local SHAP attributions (+Δ increasing points, -Δ mitigating points) so analysts and auditors know the exact reason behind every alert.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left:4px solid #8B5CF6;">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#F5F3FF; color:#8B5CF6; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">3</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Customer Data Privacy & Tokenization</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">All customer records use cryptographic tokenized IDs (<code>CUST00001</code> – <code>CUST05000</code>). No plaintext national IDs, phone numbers, or credentials enter the inference engine.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left:4px solid #F59E0B;">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#FFFBEB; color:#F59E0B; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">4</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Anti-Bias & Geographic Inclusivity</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">Surveillance thresholds are rigorously audited across all 64 districts in Bangladesh and across both APP and USSD modalities to prevent disparate demographic impact.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left:4px solid #EC4899;">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#FDF2F8; color:#EC4899; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">5</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Continuous Statistical Auditing</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">Automated drift telemetry checks feature distribution shifts across transaction batches, flagging anomalies before they can cause operational degradation.</p>
+            </div>
+          </div>
+
+          <div class="card" style="border-left:4px solid #06B6D4;">
+            <div class="card-body">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#ECFEFF; color:#06B6D4; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">6</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-primary); margin:0;">Statutory Regulatory Traceability</h4>
+              </div>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0;">Every case triage, note, status transition, and formal decision is timestamped and recorded in immutable audit logs, ready for BFIU statutory compliance exports.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Corporate Entity & Contact Audit Card -->
+        <div class="card" style="background:#ffffff; border-radius:12px; overflow:hidden;">
+          <div class="card-header" style="background:#0F172A; color:#ffffff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <img src="/assets/Upay-logo-revised-new.png" alt="upay logo" style="height:28px; background:#ffffff; border-radius:4px; padding:2px 6px;">
+              <div>
+                <h3 style="margin:0; font-size:15px; font-weight:700; color:#ffffff;">upay Corporate Entity & Statutory Operations</h3>
+                <span style="font-size:11px; color:#94A3B8;">UCB Fintech Company Limited • A Subsidiary of United Commercial Bank PLC</span>
+              </div>
+            </div>
+            <span class="badge" style="background:rgba(255,205,0,0.2); color:#FFCD00; font-weight:700;">License: MFS-BB-2021</span>
+          </div>
+
+          <div class="card-body" style="padding:24px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+              <div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:4px;">Registered Head Office</div>
+                <div style="font-size:13px; font-weight:600; color:var(--text-primary);">Plot CWS (A)-1, Road 34, Gulshan Avenue</div>
+                <div style="font-size:12px; color:var(--text-secondary);">Dhaka - 1212, Bangladesh</div>
+              </div>
+
+              <div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:4px;">Customer Care Hotline</div>
+                <div style="font-size:15px; font-weight:800; color:var(--upay-blue);">16268 / 09610916268</div>
+                <div style="font-size:12px; color:var(--text-secondary);">24/7 National Triage Line</div>
+              </div>
+
+              <div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:4px;">Regulatory Inquiries</div>
+                <div style="font-size:13px; font-weight:600; color:var(--text-primary);">info@upaybd.com</div>
+                <div style="font-size:12px; color:var(--text-secondary);">customerservice@upaybd.com</div>
+              </div>
+
+              <div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:4px;">Supported MFS Rails</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;">
+                  <span class="badge badge-channel">Cash In</span>
+                  <span class="badge badge-channel">Cash Out</span>
+                  <span class="badge badge-channel">Send Money</span>
+                  <span class="badge badge-channel">Make Payment</span>
+                  <span class="badge badge-channel">Add Money</span>
+                  <span class="badge badge-channel">Pay Bill</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>

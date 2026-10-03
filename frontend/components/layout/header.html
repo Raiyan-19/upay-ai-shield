@@ -1,0 +1,26 @@
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <div class="page-title-wrap">
+            <h2 id="current-view-title">Executive Risk Operations Dashboard</h2>
+            <p id="current-view-subtitle">Real-time behavioral telemetry, SHAP explainability & Live Risk Operations Desk</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Preset buttons for rapid demonstration -->
+          <div class="preset-group" title="Quick Simulation Scenarios">
+            <button class="preset-btn active" id="demo-normal" onclick="loadDemoScenario('normal')">Normal (0.1)</button>
+            <button class="preset-btn" id="demo-medium" onclick="loadDemoScenario('medium')">Velocity Surge (63)</button>
+            <button class="preset-btn" id="demo-high" onclick="loadDemoScenario('high')">ATO Attack (99.9)</button>
+          </div>
+
+          <div class="policy-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Strict Human-in-the-Loop</span>
+          </div>
+
+          <button class="btn btn-icon" title="Refresh Live Data" onclick="refreshDashboardData()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </button>
+        </div>
+      </header>

@@ -1,0 +1,55 @@
+  <div class="modal-overlay" id="auth-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:14px; width:480px; max-width:92vw; box-shadow:var(--shadow-xl); overflow:hidden;">
+      <div style="padding:18px 22px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="font-size:16px; font-weight:700; margin:0;">Officer Authentication & Desk Clearance</h3>
+          <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0 0;">Sign in with authorized credentials or switch active demo role</p>
+        </div>
+        <button class="btn btn-icon" onclick="closeAuthModal()" style="font-size:18px; padding:4px 8px;">&times;</button>
+      </div>
+
+      <div style="padding:20px 22px;">
+        <!-- Quick Role Switch Presets -->
+        <label style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Instant Role Switch (One-Click Demo)</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px;">
+          <button class="btn btn-secondary" onclick="quickLogin('admin', 'Admin@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:var(--critical-red);">System Admin</strong>
+            <span style="font-size:11px; color:var(--text-secondary);">Full clearance + user mgmt</span>
+          </button>
+          <button class="btn btn-secondary" onclick="quickLogin('tariq', 'Analyst@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:var(--upay-yellow);">Senior Officer (Tariq)</strong>
+            <span style="font-size:11px; color:var(--text-secondary);">Case sign-off & SAR triage</span>
+          </button>
+          <button class="btn btn-secondary" onclick="quickLogin('analyst', 'Analyst@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:var(--upay-blue);">Tier-1 Analyst (Rafiq)</strong>
+            <span style="font-size:11px; color:var(--text-secondary);">Investigations & ledger review</span>
+          </button>
+          <button class="btn btn-secondary" onclick="quickLogin('viewer', 'Viewer@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:var(--success-green);">Compliance Auditor</strong>
+            <span style="font-size:11px; color:var(--text-secondary);">Read-only statutory audit</span>
+          </button>
+        </div>
+
+        <div style="position:relative; text-align:center; margin:16px 0;">
+          <hr style="border:none; border-top:1px solid var(--border-subtle); margin:0;">
+          <span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:var(--surface-card); padding:0 10px; font-size:11px; color:var(--text-secondary); font-weight:600;">OR SIGN IN WITH CREDENTIALS</span>
+        </div>
+
+        <form id="auth-login-form" onsubmit="handleManualLogin(event)">
+          <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Username or Official Email</label>
+            <input type="text" id="login-ident" class="filter-input" style="width:100%;" required placeholder="e.g. admin or tariq.hassan@upay.com.bd">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Secure Password</label>
+            <input type="password" id="login-pwd" class="filter-input" style="width:100%;" required placeholder="Enter password...">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;">
+            Authenticate Session
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>upay AI Shield — Enterprise Risk Operations & Scam Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-container" id="app-container">
+    <!-- Component Mount: Left Navigation Sidebar -->
+    <div id="sidebar-mount"></div>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      <!-- Component Mount: Topbar Header -->
+      <div id="header-mount"></div>
+
+      <!-- Component Mount: Dynamic Page View Container -->
+      <div id="view-container" class="view-mount-container">
+        <!-- Rendered modular view (/views/*.html) mounts dynamically here -->
+        <div class="view-loading-skeleton" style="padding: 60px 20px; text-align: center; color: var(--text-secondary);">
+          <div style="display:inline-block; width:36px; height:36px; border:3px solid var(--border-subtle); border-top-color:var(--upay-blue); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:14px;"></div>
+          <div style="font-size:14px; font-weight:600;">Loading upay AI Shield workspace...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Component Mount: Modals & Slide-over Drawers -->
+  <div id="drawer-mount"></div>
+  <div id="modal-mount"></div>
+
+  <!-- Global Toast Feedback Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Modular Scripts & Component Engine -->
+  <script src="/js/services/api.service.js"></script>
+  <script src="/js/services/auth.service.js"></script>
+  <script src="/js/services/admin.service.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/component-loader.js"></script>
+  <script src="/js/router.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

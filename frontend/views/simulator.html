@@ -1,0 +1,158 @@
+      <section id="simulator-view" class="view-section">
+        <div class="toolbar" style="margin-bottom:20px;">
+          <div class="filter-pills">
+            <button class="filter-pill active" id="tab-btn-live-sim" onclick="switchSimulatorTab('live')">Mode 1: Live Risk Scoring</button>
+            <button class="filter-pill" id="tab-btn-whatif-sim" onclick="switchSimulatorTab('whatif')">Mode 2: What-If Counterfactual Sandbox</button>
+          </div>
+        </div>
+
+        <!-- Mode 1: Live Risk Telemetry Form -->
+        <div id="sim-panel-live" class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">10-Feature Behavioral Telemetry Form</h3>
+              <div class="preset-group">
+                <button class="preset-btn" onclick="fillSimulatorPreset('normal')">Preset Normal</button>
+                <button class="preset-btn" onclick="fillSimulatorPreset('ato')">Preset ATO</button>
+                <button class="preset-btn" onclick="fillSimulatorPreset('burst')">Preset Burst</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="live-sim-form" onsubmit="event.preventDefault(); runLiveSimulation();">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Transaction Amount (BDT ৳)</label>
+                    <input type="number" step="0.01" class="search-box" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-amount" value="35000.00">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Amount Deviation (Ratio)</label>
+                    <input type="number" step="0.1" class="search-box" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-deviation" value="8.5">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Hour of Day (0-23)</label>
+                    <input type="number" min="0" max="23" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-hour" value="3">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Transactions in Last 1 Hour</label>
+                    <input type="number" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-tx1h" value="7">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Transactions in Last 24 Hours</label>
+                    <input type="number" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-tx24h" value="18">
+                  </div>
+                  <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-secondary);">Failed Preceding Attempts</label>
+                    <input type="number" min="0" style="width:100%; padding:8px 12px; border:1px solid var(--border-subtle); border-radius:8px;" id="sim-input-failed" value="2">
+                  </div>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px; padding:12px; background:var(--surface-muted); border-radius:12px;">
+                  <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="sim-check-new-device" checked> Unregistered Hardware Device
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="sim-check-new-receiver" checked> First-Time Recipient
+                  </label>
+                  <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="sim-check-location"> Location Discrepancy
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">
+                  Run XGBoost Inference & SHAP Analysis
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Live Result Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Live Calibrated Inference Result</h3>
+              <span class="badge badge-high" id="sim-result-tier-badge">HIGH RISK</span>
+            </div>
+            <div class="card-body">
+              <div style="text-align:center; padding:12px 0 20px;">
+                <div style="font-size:12px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Continuous Risk Score</div>
+                <div style="font-size:56px; font-weight:900; color:var(--danger-red); line-height:1.1;" id="sim-result-score">99.9</div>
+                <div style="font-size:13px; font-weight:700; margin-top:6px; color:var(--text-primary);" id="sim-result-action">Directive: HUMAN_REVIEW (Route to Analyst Queue)</div>
+              </div>
+
+              <div class="card-title" style="margin-bottom:12px; font-size:14px;">SHAP Factor Waterfall Breakdown</div>
+              <div id="sim-shap-waterfall">
+                <!-- Waterfall rows injected -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 2: What-If Counterfactual Sandbox -->
+        <div id="sim-panel-whatif" class="analytics-grid" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Counterfactual Adjustment Sliders</h3>
+            </div>
+            <div class="card-body">
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Transfer Amount (BDT)</span>
+                  <span id="whatif-amount-val">৳45,000</span>
+                </div>
+                <input type="range" min="500" max="80000" step="1000" value="45000" class="slider-input" id="whatif-amount-slider" oninput="runWhatIfSimulation()">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Amount Deviation Multiplier</span>
+                  <span id="whatif-dev-val">10.0x</span>
+                </div>
+                <input type="range" min="0.5" max="25" step="0.5" value="10.0" class="slider-input" id="whatif-dev-slider" oninput="runWhatIfSimulation()">
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Velocity in Last 1 Hour</span>
+                  <span id="whatif-velocity-val">6 txs</span>
+                </div>
+                <input type="range" min="0" max="15" step="1" value="6" class="slider-input" id="whatif-velocity-slider" oninput="runWhatIfSimulation()">
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px; padding:14px; background:var(--surface-muted); border-radius:12px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                  <input type="checkbox" id="whatif-check-device" checked onchange="runWhatIfSimulation()"> Treat Device as Unregistered
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                  <input type="checkbox" id="whatif-check-receiver" checked onchange="runWhatIfSimulation()"> Treat Beneficiary as First-Time
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">What-If Delta Comparison</h3>
+            </div>
+            <div class="card-body">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div style="background:var(--surface-muted); padding:16px; border-radius:14px; text-align:center;">
+                  <div style="font-size:11px; font-weight:600; color:var(--text-secondary);">BASELINE SCORE</div>
+                  <div style="font-size:32px; font-weight:800; color:var(--text-primary);" id="whatif-orig-score">99.9</div>
+                  <div class="badge badge-high" id="whatif-orig-badge">HIGH</div>
+                </div>
+
+                <div style="background:var(--upay-blue-tint); padding:16px; border-radius:14px; text-align:center;">
+                  <div style="font-size:11px; font-weight:600; color:var(--upay-blue);">SIMULATED SCORE</div>
+                  <div style="font-size:32px; font-weight:800; color:var(--upay-blue);" id="whatif-sim-score">14.2</div>
+                  <div class="badge badge-low" id="whatif-sim-badge">LOW</div>
+                </div>
+              </div>
+
+              <div style="background:var(--surface-pure); border:1px solid var(--border-subtle); padding:16px; border-radius:14px; text-align:center;">
+                <div style="font-size:12px; color:var(--text-secondary);">Risk Delta Attribution</div>
+                <div style="font-size:24px; font-weight:900; color:var(--success-green);" id="whatif-delta-points">-85.7 Points (Risk Mitigated)</div>
+                <p style="font-size:12px; color:var(--text-tertiary); margin-top:4px;">Action converts from <strong>HUMAN_REVIEW</strong> to <strong>CONTINUE</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>

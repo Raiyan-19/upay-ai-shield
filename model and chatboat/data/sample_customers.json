@@ -1,0 +1,227 @@
+[
+  {
+    "customer_id": "CUST00001",
+    "account_age_days": 2240,
+    "normal_avg_amount": 2772.74,
+    "normal_transaction_count": 13,
+    "primary_location": "Dhaka",
+    "registered_device_count": 2,
+    "account_created_date": "12/13/2012"
+  },
+  {
+    "customer_id": "CUST00002",
+    "account_age_days": 1468,
+    "normal_avg_amount": 2222.64,
+    "normal_transaction_count": 9,
+    "primary_location": "Sylhet",
+    "registered_device_count": 4,
+    "account_created_date": "1/24/2015"
+  },
+  {
+    "customer_id": "CUST00003",
+    "account_age_days": 2016,
+    "normal_avg_amount": 447.06,
+    "normal_transaction_count": 7,
+    "primary_location": "Sylhet",
+    "registered_device_count": 1,
+    "account_created_date": "7/25/2013"
+  },
+  {
+    "customer_id": "CUST00004",
+    "account_age_days": 1455,
+    "normal_avg_amount": 1169.13,
+    "normal_transaction_count": 7,
+    "primary_location": "Rajshahi",
+    "registered_device_count": 2,
+    "account_created_date": "2/6/2015"
+  },
+  {
+    "customer_id": "CUST00005",
+    "account_age_days": 1551,
+    "normal_avg_amount": 449.9,
+    "normal_transaction_count": 12,
+    "primary_location": "Chattogram",
+    "registered_device_count": 2,
+    "account_created_date": "11/2/2014"
+  },
+  {
+    "customer_id": "CUST00006",
+    "account_age_days": 100,
+    "normal_avg_amount": 2738.91,
+    "normal_transaction_count": 8,
+    "primary_location": "Sylhet",
+    "registered_device_count": 1,
+    "account_created_date": "10/23/2018"
+  },
+  {
+    "customer_id": "CUST00007",
+    "account_age_days": 190,
+    "normal_avg_amount": 632.43,
+    "normal_transaction_count": 10,
+    "primary_location": "Chattogram",
+    "registered_device_count": 3,
+    "account_created_date": "7/25/2018"
+  },
+  {
+    "customer_id": "CUST00008",
+    "account_age_days": 1961,
+    "normal_avg_amount": 570.49,
+    "normal_transaction_count": 11,
+    "primary_location": "Nilphamari",
+    "registered_device_count": 2,
+    "account_created_date": "9/18/2013"
+  },
+  {
+    "customer_id": "CUST00009",
+    "account_age_days": 2202,
+    "normal_avg_amount": 779.12,
+    "normal_transaction_count": 7,
+    "primary_location": "Rangpur",
+    "registered_device_count": 2,
+    "account_created_date": "1/20/2013"
+  },
+  {
+    "customer_id": "CUST00010",
+    "account_age_days": 2082,
+    "normal_avg_amount": 1487.55,
+    "normal_transaction_count": 12,
+    "primary_location": "Dinajpur",
+    "registered_device_count": 1,
+    "account_created_date": "5/20/2013"
+  },
+  {
+    "customer_id": "CUST00011",
+    "account_age_days": 798,
+    "normal_avg_amount": 1750.87,
+    "normal_transaction_count": 6,
+    "primary_location": "Chattogram",
+    "registered_device_count": 4,
+    "account_created_date": "11/24/2016"
+  },
+  {
+    "customer_id": "CUST00012",
+    "account_age_days": 1817,
+    "normal_avg_amount": 1824.45,
+    "normal_transaction_count": 11,
+    "primary_location": "Rajshahi",
+    "registered_device_count": 2,
+    "account_created_date": "2/9/2014"
+  },
+  {
+    "customer_id": "CUST00013",
+    "account_age_days": 1156,
+    "normal_avg_amount": 804.27,
+    "normal_transaction_count": 9,
+    "primary_location": "Saidpur",
+    "registered_device_count": 4,
+    "account_created_date": "12/2/2015"
+  },
+  {
+    "customer_id": "CUST00014",
+    "account_age_days": 2109,
+    "normal_avg_amount": 654.92,
+    "normal_transaction_count": 10,
+    "primary_location": "Chattogram",
+    "registered_device_count": 3,
+    "account_created_date": "4/23/2013"
+  },
+  {
+    "customer_id": "CUST00015",
+    "account_age_days": 1022,
+    "normal_avg_amount": 3330.63,
+    "normal_transaction_count": 5,
+    "primary_location": "Rajshahi",
+    "registered_device_count": 4,
+    "account_created_date": "4/14/2016"
+  },
+  {
+    "customer_id": "CUST00016",
+    "account_age_days": 713,
+    "normal_avg_amount": 4335.15,
+    "normal_transaction_count": 9,
+    "primary_location": "Chattogram",
+    "registered_device_count": 1,
+    "account_created_date": "2/17/2017"
+  },
+  {
+    "customer_id": "CUST00017",
+    "account_age_days": 329,
+    "normal_avg_amount": 632.88,
+    "normal_transaction_count": 14,
+    "primary_location": "Saidpur",
+    "registered_device_count": 3,
+    "account_created_date": "3/8/2018"
+  },
+  {
+    "customer_id": "CUST00018",
+    "account_age_days": 1112,
+    "normal_avg_amount": 476.88,
+    "normal_transaction_count": 6,
+    "primary_location": "Nilphamari",
+    "registered_device_count": 1,
+    "account_created_date": "1/15/2016"
+  },
+  {
+    "customer_id": "CUST00019",
+    "account_age_days": 2230,
+    "normal_avg_amount": 486.98,
+    "normal_transaction_count": 7,
+    "primary_location": "Chattogram",
+    "registered_device_count": 2,
+    "account_created_date": "12/23/2012"
+  },
+  {
+    "customer_id": "CUST00020",
+    "account_age_days": 1964,
+    "normal_avg_amount": 1049.91,
+    "normal_transaction_count": 11,
+    "primary_location": "Sylhet",
+    "registered_device_count": 2,
+    "account_created_date": "9/15/2013"
+  },
+  {
+    "customer_id": "CUST00021",
+    "account_age_days": 702,
+    "normal_avg_amount": 1104.12,
+    "normal_transaction_count": 15,
+    "primary_location": "Rangpur",
+    "registered_device_count": 1,
+    "account_created_date": "2/28/2017"
+  },
+  {
+    "customer_id": "CUST00022",
+    "account_age_days": 2327,
+    "normal_avg_amount": 1440.16,
+    "normal_transaction_count": 10,
+    "primary_location": "Dhaka",
+    "registered_device_count": 3,
+    "account_created_date": "9/17/2012"
+  },
+  {
+    "customer_id": "CUST00023",
+    "account_age_days": 2313,
+    "normal_avg_amount": 2654.62,
+    "normal_transaction_count": 6,
+    "primary_location": "Khulna",
+    "registered_device_count": 1,
+    "account_created_date": "10/1/2012"
+  },
+  {
+    "customer_id": "CUST00024",
+    "account_age_days": 2007,
+    "normal_avg_amount": 872.1,
+    "normal_transaction_count": 7,
+    "primary_location": "Chattogram",
+    "registered_device_count": 3,
+    "account_created_date": "8/3/2013"
+  },
+  {
+    "customer_id": "CUST00025",
+    "account_age_days": 75,
+    "normal_avg_amount": 1081.95,
+    "normal_transaction_count": 8,
+    "primary_location": "Mymensingh",
+    "registered_device_count": 2,
+    "account_created_date": "11/17/2018"
+  }
+]
