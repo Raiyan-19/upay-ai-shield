@@ -1,0 +1,143 @@
+{
+  "dataset": "BanglaPhish-2026 (data_new)",
+  "total_samples": 5416,
+  "test_samples": 542,
+  "domains_covered": 30,
+  "trained_at": "2026-10-07T05:08:44.307917+00:00",
+  "benchmark": {
+    "rule_engine_strawman": {
+      "precision": 0.9202,
+      "recall": 0.6533,
+      "f1": 0.7641,
+      "roc_auc": 0.7915,
+      "pr_auc": 0.7931,
+      "description": "Static Bengali Keyword Matcher (Deterministic strawman)"
+    },
+    "logistic_regression": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "description": "Linear L2-regularized TF-IDF Classifier"
+    },
+    "random_forest": {
+      "precision": 1.0,
+      "recall": 0.9833,
+      "f1": 0.9916,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "description": "Ensemble Random Forest (150 estimators, max depth 16)"
+    },
+    "xgboost_champion": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0,
+      "pr_auc": 1.0,
+      "description": "Calibrated Gradient Boosted Trees (Subword n-grams)"
+    }
+  },
+  "top_scam_signals": [
+    {
+      "token": "বলা",
+      "weight": 0.26218
+    },
+    {
+      "token": "অপসারিত",
+      "weight": 0.20105
+    },
+    {
+      "token": "রেড্যাক্টেড",
+      "weight": 0.08473
+    },
+    {
+      "token": "চাইছে",
+      "weight": 0.07625
+    },
+    {
+      "token": "নামে",
+      "weight": 0.05557
+    },
+    {
+      "token": "বিকাশ",
+      "weight": 0.05173
+    },
+    {
+      "token": "দেখানো",
+      "weight": 0.0414
+    },
+    {
+      "token": "redacted_url",
+      "weight": 0.02845
+    },
+    {
+      "token": "যাচাইয়ের",
+      "weight": 0.02812
+    },
+    {
+      "token": "মধ্যে",
+      "weight": 0.02206
+    },
+    {
+      "token": "বলে",
+      "weight": 0.01949
+    },
+    {
+      "token": "দাবি",
+      "weight": 0.01895
+    },
+    {
+      "token": "redacted_phone",
+      "weight": 0.01526
+    },
+    {
+      "token": "date_time",
+      "weight": 0.0126
+    },
+    {
+      "token": "করবেন",
+      "weight": 0.01176
+    },
+    {
+      "token": "ব্যক্তিগত",
+      "weight": 0.0099
+    },
+    {
+      "token": "প্রয়োজনে",
+      "weight": 0.00674
+    },
+    {
+      "token": "একটি স্বয়ংক্রিয়",
+      "weight": 0.00609
+    },
+    {
+      "token": "এই",
+      "weight": 0.00507
+    },
+    {
+      "token": "গোপন",
+      "weight": 0.00469
+    },
+    {
+      "token": "বিস্তারিত",
+      "weight": 0.00442
+    },
+    {
+      "token": "করতে",
+      "weight": 0.00341
+    },
+    {
+      "token": "পারে",
+      "weight": 0.00332
+    },
+    {
+      "token": "অ্যাকাউন্টে",
+      "weight": 0.00251
+    },
+    {
+      "token": "কাস্টমার",
+      "weight": 0.00238
+    }
+  ]
+}

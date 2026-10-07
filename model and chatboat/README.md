@@ -30,7 +30,7 @@ ai_models_and_chatbot/
 │   └── data_loader.py          # Data helpers: load_sample_transactions(), get_by_id()
 │
 ├── README.md                   # Complete documentation (this file)
-└── AI_COPY_PASTE_INSTRUCTIONS.md # Ready-to-copy instructions for an AI to wire this up
+└── train_and_benchmark.py      # Dual-engine ML & NLP training & benchmark pipeline
 ```
 
 ---
@@ -165,4 +165,4 @@ def chat(payload: dict):
 ---
 
 ## 📋 6. Summary for AI Assistants
-See [AI_COPY_PASTE_INSTRUCTIONS.md](file:///c:/Users/HP/OneDrive/Desktop/ai%20train/ai_models_and_chatbot/AI_COPY_PASTE_INSTRUCTIONS.md) for the exact prompt to give to an AI to automatically implement this in your target stack.
+See [docs/chatbot_pipeline.md](../docs/chatbot_pipeline.md) and [docs/ml_pipeline.md](../docs/ml_pipeline.md) for full pipeline specifications, prompt architecture, and integration standards.

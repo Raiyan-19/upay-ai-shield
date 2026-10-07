@@ -14,5 +14,7 @@ pandas>=2.2.0
 numpy>=1.26.0
 openpyxl>=3.1.2
 
-# Generative AI Forensic Copilot
+# Generative AI Forensic Copilot & Intelligence
 google-genai>=0.1.1
+networkx>=3.0
+python-dotenv>=1.0.0

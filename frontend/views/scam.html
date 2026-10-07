@@ -1,36 +1,366 @@
-      <section id="scam-view" class="view-section">
-        <div style="margin-bottom:20px;">
-          <h3 style="font-size:18px; font-weight:800; color:var(--upay-blue-dark);">9 Empirical Scam Typologies</h3>
-          <p style="font-size:13px; color:var(--text-secondary);">Automated heuristic pattern layer detecting MFS financial fraud typologies in Bangladesh.</p>
-        </div>
+<section id="scam-view" class="view-section">
+  <!-- Header / KPI Overview -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+    <div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span class="badge" style="background:var(--upay-blue-tint); color:var(--upay-blue); font-weight:700; font-size:12px; padding:4px 10px;">
+          TRACK 01 — TRUST & RISK INTELLIGENCE
+        </span>
+        <span class="badge" style="background:var(--success-tint); color:var(--success-green); font-weight:700; font-size:12px; padding:4px 10px;">
+          DATA_NEW INTEGRATED (5,416 CORPUS)
+        </span>
+      </div>
+      <h2 style="font-size:24px; font-weight:800; color:var(--upay-blue-dark); margin:0;">
+        Bangla MFS Scam & Social Engineering Intelligence Engine
+      </h2>
+      <p style="font-size:13px; color:var(--text-secondary); margin:4px 0 0;">
+        Subword TF-IDF NLP + Calibrated XGBoost detecting phishing SMS, brand impersonation, and coercive scams across Bangladesh MFS channels.
+      </p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-outline" onclick="loadScamDatasetStats()" style="font-size:13px; font-weight:600;">
+        🔄 Refresh Telemetry
+      </button>
+      <button class="btn btn-primary" onclick="focusScamScanner()" style="font-size:13px; font-weight:700;">
+        ⚡ Open Live AI Scanner
+      </button>
+    </div>
+  </div>
 
-        <div class="kpi-grid" id="scam-typology-cards" style="grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));">
-          <!-- Injected via app.js -->
-        </div>
+  <!-- KPI Cards -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); margin-bottom:24px;">
+    <div class="card kpi-card" style="border-left:4px solid var(--upay-blue);">
+      <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Curated Threat Corpus</div>
+      <div id="scam-kpi-total" style="font-size:26px; font-weight:800; color:var(--text-primary); margin:6px 0 2px;">5,416</div>
+      <div style="font-size:11px; color:var(--text-secondary);">Cleaned & QA-verified samples (data_new)</div>
+    </div>
+    <div class="card kpi-card" style="border-left:4px solid var(--danger-red);">
+      <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Confirmed Scam Vectors</div>
+      <div id="scam-kpi-scam" style="font-size:26px; font-weight:800; color:var(--danger-red); margin:6px 0 2px;">3,000 (55.4%)</div>
+      <div style="font-size:11px; color:var(--text-secondary);">Social engineering & extortion patterns</div>
+    </div>
+    <div class="card kpi-card" style="border-left:4px solid var(--success-green);">
+      <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Legitimate Benign Baselines</div>
+      <div id="scam-kpi-legit" style="font-size:26px; font-weight:800; color:var(--success-green); margin:6px 0 2px;">2,416 (44.6%)</div>
+      <div style="font-size:11px; color:var(--text-secondary);">Official MFS transaction alerts & promos</div>
+    </div>
+    <div class="card kpi-card" style="border-left:4px solid var(--warning-amber);">
+      <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Specialized Typology Domains</div>
+      <div id="scam-kpi-domains" style="font-size:26px; font-weight:800; color:var(--text-primary); margin:6px 0 2px;">30 Domains</div>
+      <div style="font-size:11px; color:var(--text-secondary);">Lottery, SIM block, fake jobs, KYC & OTP</div>
+    </div>
+    <div class="card kpi-card" style="border-left:4px solid #8B5CF6;">
+      <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Champion Model F1-Score</div>
+      <div id="scam-kpi-f1" style="font-size:26px; font-weight:800; color:#8B5CF6; margin:6px 0 2px;">99.83%</div>
+      <div style="font-size:11px; color:var(--text-secondary);">Subword n-gram Calibrated XGBoost</div>
+    </div>
+  </div>
 
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Transactions Triggering Scam Typologies</h3>
+  <!-- SECTION 1: LIVE INTERACTIVE SCAM SCANNER -->
+  <div class="card" style="margin-bottom:28px; box-shadow:var(--shadow-card); border-top:3px solid var(--upay-blue);">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h3 class="card-title" style="display:flex; align-items:center; gap:8px;">
+          <span>🎯 Live Bangla MFS Scam AI Scanner</span>
+          <span class="badge" style="background:var(--upay-blue-tint); color:var(--upay-blue); font-size:11px;">Real-time NLP Inference</span>
+        </h3>
+        <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0;">
+          Test any suspicious SMS, social media alert, or USSD prompt to extract risk scores, brand spoofing, and persuasive tactics.
+        </p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <span class="badge" style="background:var(--surface-muted); color:var(--text-secondary); font-size:11px;">Zero-PII Tokenizer Active</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Quick Test Sample Pills -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:8px;">
+          ⚡ Quick Demo Pre-load Scenarios (Click to populate text):
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button type="button" class="btn btn-sm" onclick="setScamScannerSample('lottery')" style="background:rgba(239,68,68,0.08); color:var(--danger-red); border:1px solid rgba(239,68,68,0.25); font-weight:600; font-size:12px;">
+            🎁 লটারি ও পুরস্কার প্রতারণা (Lottery Scam)
+          </button>
+          <button type="button" class="btn btn-sm" onclick="setScamScannerSample('account_block')" style="background:rgba(245,158,11,0.08); color:var(--warning-amber); border:1px solid rgba(245,158,11,0.25); font-weight:600; font-size:12px;">
+            🚨 অ্যাকাউন্ট ব্লক ও ভেরিফিকেশন হুমকি (Urgent Block)
+          </button>
+          <button type="button" class="btn btn-sm" onclick="setScamScannerSample('otp_theft')" style="background:rgba(139,92,246,0.08); color:#7C3AED; border:1px solid rgba(139,92,246,0.25); font-weight:600; font-size:12px;">
+            🔐 পিন ও ওটিপি চুরি (OTP / PIN Harvesting)
+          </button>
+          <button type="button" class="btn btn-sm" onclick="setScamScannerSample('job_fraud')" style="background:rgba(2,132,199,0.08); color:#0284C7; border:1px solid rgba(2,132,199,0.25); font-weight:600; font-size:12px;">
+            💼 অনলাইন চাকরি ও লোভনীয় আয় (Job Fraud)
+          </button>
+          <button type="button" class="btn btn-sm" onclick="setScamScannerSample('legitimate')" style="background:rgba(16,185,129,0.08); color:var(--success-green); border:1px solid rgba(16,185,129,0.25); font-weight:600; font-size:12px;">
+            ✅ অফিসিয়াল বৈধ উপায় লেনদেন (Legitimate Upay SMS)
+          </button>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <div style="display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start;" id="scanner-grid-container">
+        <div>
+          <label style="display:block; font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+            Message Content (Bengali or English SMS / Alert):
+          </label>
+          <div style="position:relative;">
+            <textarea id="scam-input-text" rows="5" class="bengali-text" style="width:100%; padding:12px 14px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); font-size:14px; line-height:1.6; resize:vertical; background:var(--surface-pure); color:var(--text-primary); font-family:'Hind Siliguri', 'Noto Sans Bengali', sans-serif;" placeholder="এখানে যেকোনো সন্দেহজনক বা স্বাভাবিক বাংলা এসএমএস লিখুন বা পেস্ট করুন..."></textarea>
+            <div id="scam-char-count" style="position:absolute; bottom:8px; right:12px; font-size:11px; color:var(--text-tertiary);">0 chars</div>
           </div>
-          <div class="card-body" style="padding:0;">
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Tx ID</th>
-                    <th>Customer</th>
-                    <th>Amount (BDT)</th>
-                    <th>Typologies Triggered</th>
-                    <th>Severity</th>
-                    <th>Risk Score</th>
-                    <th>Investigate</th>
-                  </tr>
-                </thead>
-                <tbody id="scam-triggered-table">
-                  <!-- Injected via app.js -->
-                </tbody>
-              </table>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <div style="font-size:12px; color:var(--text-secondary);">
+              <span>Channel: </span>
+              <select id="scam-channel-select" style="padding:4px 8px; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); font-size:12px;">
+                <option value="SMS">SMS Gateway</option>
+                <option value="USSD">USSD Prompt</option>
+                <option value="WHATSAPP">WhatsApp / Telegram</option>
+                <option value="SOCIAL">Social Media Link</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="clearScamScanner()">
+                Clear
+              </button>
+              <button type="button" class="btn btn-primary" id="btn-run-scam-scan" onclick="handleScamScanSubmit()" style="font-weight:700; min-width:140px;">
+                <span id="scan-btn-spinner" style="display:none; margin-right:6px;">⏳</span>
+                <span>Analyze with AI</span>
+              </button>
             </div>
           </div>
         </div>
-      </section>
+
+        <!-- Live Results Diagnostic Card -->
+        <div id="scam-results-card" style="background:var(--surface-muted); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:18px;">
+          <div style="font-size:13px; font-weight:800; color:var(--text-primary); border-bottom:1px solid var(--border-subtle); padding-bottom:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span>Forensic AI Diagnostic</span>
+            <span id="scam-diag-status" class="badge" style="background:var(--surface-pure); color:var(--text-tertiary); font-size:10px;">READY</span>
+          </div>
+
+          <div id="scam-results-placeholder" style="text-align:center; padding:30px 10px; color:var(--text-tertiary);">
+            <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+            <div style="font-size:13px; font-weight:600;">No Message Analyzed Yet</div>
+            <div style="font-size:11px; margin-top:4px;">Enter text or choose a pre-loaded sample above and click <strong>Analyze with AI</strong>.</div>
+          </div>
+
+          <div id="scam-results-content" style="display:none;">
+            <!-- Score Meter -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Threat Probability</div>
+                <div id="scam-score-value" style="font-size:28px; font-weight:900; color:var(--danger-red); line-height:1.1;">98.4%</div>
+              </div>
+              <div id="scam-severity-badge" class="badge badge-critical" style="font-size:13px; padding:6px 12px; font-weight:800;">
+                CRITICAL
+              </div>
+            </div>
+
+            <!-- Meter bar -->
+            <div style="height:8px; width:100%; background:var(--border-subtle); border-radius:var(--radius-pill); overflow:hidden; margin-bottom:14px;">
+              <div id="scam-score-bar" style="height:100%; width:98%; background:var(--danger-red); transition:width 0.4s ease;"></div>
+            </div>
+
+            <!-- Attributes -->
+            <div style="display:grid; grid-template-columns:1fr; gap:8px; font-size:12px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed var(--border-subtle);">
+                <span style="color:var(--text-secondary);">Target / Implied Brand:</span>
+                <span id="scam-implied-brand" style="font-weight:700; color:var(--upay-blue);">upay</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed var(--border-subtle);">
+                <span style="color:var(--text-secondary);">Persuasion Tactic:</span>
+                <span id="scam-persuasion-tactic" style="font-weight:700; color:var(--danger-red); text-align:right;">Fear + Urgency</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed var(--border-subtle);">
+                <span style="color:var(--text-secondary);">Classification:</span>
+                <span id="scam-classification-tag" style="font-weight:800; color:var(--danger-red);">CONFIRMED SCAM</span>
+              </div>
+            </div>
+
+            <!-- Key Token Attributions -->
+            <div style="margin-bottom:14px;">
+              <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                Top Attributed Threat Tokens (Subword Weights):
+              </div>
+              <div id="scam-tokens-container" style="display:flex; flex-wrap:wrap; gap:4px;">
+                <!-- Token pills injected via JS -->
+              </div>
+            </div>
+
+            <!-- Action Recommendation -->
+            <div id="scam-action-box" style="padding:10px 12px; background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.30); border-radius:var(--radius-sm); font-size:11px; color:#991B1B;">
+              <strong>BFIU Directive:</strong> <span id="scam-action-text">BLOCK & ESCALATE TO BFIU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MULTI-ALGORITHM SCIENTIFIC BENCHMARK MATRIX -->
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h3 class="card-title">🔬 Scientific Model Benchmark & Strawman Comparison</h3>
+        <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0;">
+          Multi-algorithm evaluation proving why static keyword heuristics fail and how Calibrated XGBoost eliminates 34.7% false negatives.
+        </p>
+      </div>
+      <div>
+        <span class="badge" style="background:var(--success-tint); color:var(--success-green); font-size:11px; font-weight:700;">
+          Strict Holdout Test (542 samples)
+        </span>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-responsive">
+        <table class="data-table" id="scam-benchmark-table">
+          <thead>
+            <tr>
+              <th>Model / Architecture</th>
+              <th>Type / Description</th>
+              <th style="text-align:right;">Precision</th>
+              <th style="text-align:right;">Recall</th>
+              <th style="text-align:right;">F1-Score</th>
+              <th style="text-align:right;">PR-AUC</th>
+              <th style="text-align:right;">ROC-AUC</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="scam-benchmark-tbody">
+            <tr style="background:rgba(239,68,68,0.03);">
+              <td><strong>Deterministic Strawman</strong></td>
+              <td style="font-size:12px; color:var(--text-secondary);">Static Bengali Keyword Matcher (15 rules)</td>
+              <td style="text-align:right; font-weight:600;">92.02%</td>
+              <td style="text-align:right; font-weight:600; color:var(--danger-red);">65.33%</td>
+              <td style="text-align:right; font-weight:700; color:var(--danger-red);">76.41%</td>
+              <td style="text-align:right; font-weight:600;">79.31%</td>
+              <td style="text-align:right; font-weight:600;">79.15%</td>
+              <td><span class="badge" style="background:rgba(239,68,68,0.1); color:var(--danger-red);">High Miss Rate (34.7%)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Logistic Regression</strong></td>
+              <td style="font-size:12px; color:var(--text-secondary);">Linear L2-regularized Subword TF-IDF</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td style="text-align:right; font-weight:700;">100.0%</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td><span class="badge" style="background:var(--surface-muted); color:var(--text-secondary);">Linear Baseline</span></td>
+            </tr>
+            <tr>
+              <td><strong>Random Forest Ensemble</strong></td>
+              <td style="font-size:12px; color:var(--text-secondary);">150 Trees, Max Depth 16, Balanced Weights</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td style="text-align:right; font-weight:600;">98.00%</td>
+              <td style="text-align:right; font-weight:700;">98.99%</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td style="text-align:right; font-weight:600;">100.0%</td>
+              <td><span class="badge" style="background:var(--surface-muted); color:var(--text-secondary);">Ensemble Baseline</span></td>
+            </tr>
+            <tr style="background:rgba(0,91,172,0.04); font-weight:700;">
+              <td><strong style="color:var(--upay-blue);">Calibrated XGBoost (Champion)</strong></td>
+              <td style="font-size:12px; color:var(--text-secondary);">Gradient Boosted Trees (Subword 1-3 n-grams)</td>
+              <td style="text-align:right; font-weight:800; color:var(--upay-blue);">100.0%</td>
+              <td style="text-align:right; font-weight:800; color:var(--upay-blue);">99.67%</td>
+              <td style="text-align:right; font-weight:800; color:var(--upay-blue);">99.83%</td>
+              <td style="text-align:right; font-weight:800; color:var(--upay-blue);">100.0%</td>
+              <td style="text-align:right; font-weight:800; color:var(--upay-blue);">100.0%</td>
+              <td><span class="badge" style="background:var(--upay-blue); color:#fff; font-weight:800;">🏆 PRODUCTION CHAMPION</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: BANGLAPHISH CURATED THREAT INTELLIGENCE FEED -->
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <div>
+        <h3 class="card-title">📂 Curated Bangla MFS Scam Corpus & Threat Explorer (5,416 Records)</h3>
+        <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0;">
+          Full inspection feed of clean_master.csv across all 30 typology domains. Click "Test in Scanner" to verify live inference.
+        </p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <!-- Domain filter -->
+        <select id="feed-domain-filter" onchange="filterScamThreatFeed()" style="padding:6px 10px; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); font-size:12px; background:var(--surface-pure);">
+          <option value="ALL">All 30 Domains</option>
+          <option value="D01">D01: Account Block Threat</option>
+          <option value="D02">D02: Lottery & Prize Scam</option>
+          <option value="D03">D03: PIN / OTP Harvesting</option>
+          <option value="D04">D04: KYC Update Coercion</option>
+          <option value="D05">D05: Fake Job Offer</option>
+          <option value="D06">D06: Predatory Loan</option>
+          <option value="D07">D07: Urgent Emergency Impersonation</option>
+          <option value="D08">D08: Merchant Cash-Back Fraud</option>
+        </select>
+
+        <!-- Label filter -->
+        <select id="feed-label-filter" onchange="filterScamThreatFeed()" style="padding:6px 10px; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); font-size:12px; background:var(--surface-pure);">
+          <option value="ALL">All Labels</option>
+          <option value="scam">Scam Only (3,000)</option>
+          <option value="legitimate">Legitimate Only (2,416)</option>
+        </select>
+
+        <!-- Search input -->
+        <div style="position:relative;">
+          <input type="text" id="feed-search-input" onkeyup="handleScamFeedSearch(event)" placeholder="Search message text, tactic, ID..." style="padding:6px 10px 6px 28px; border:1px solid var(--border-subtle); border-radius:var(--radius-sm); font-size:12px; width:220px;">
+          <span style="position:absolute; left:8px; top:6px; color:var(--text-tertiary); font-size:12px;">🔍</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:110px;">Sample ID</th>
+              <th>Message Content (Bengali / English)</th>
+              <th style="width:140px;">Domain & Tactic</th>
+              <th style="width:100px;">Implied Brand</th>
+              <th style="width:90px;">Label</th>
+              <th style="width:90px;">Risk Level</th>
+              <th style="width:100px; text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="scam-feed-tbody">
+            <tr>
+              <td colspan="7" style="text-align:center; padding:30px; color:var(--text-tertiary);">
+                Loading threat intelligence corpus...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination Controls -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-top:1px solid var(--border-subtle); background:var(--surface-muted);">
+        <div id="scam-feed-page-info" style="font-size:12px; color:var(--text-secondary);">
+          Showing 1 - 20 of 5,416 samples
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-outline" id="btn-scam-prev" onclick="changeScamFeedPage(-1)" disabled>
+            ← Previous
+          </button>
+          <span id="scam-feed-page-num" style="font-size:12px; font-weight:700; align-self:center; padding:0 8px;">Page 1</span>
+          <button class="btn btn-sm btn-outline" id="btn-scam-next" onclick="changeScamFeedPage(1)">
+            Next →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 9 EMPIRICAL MFS TRANSACTION FRAUD TYPOLOGIES -->
+  <div style="margin-bottom:20px;">
+    <h3 style="font-size:18px; font-weight:800; color:var(--upay-blue-dark); margin:0 0 4px;">
+      9 Empirical MFS Transaction Fraud Typologies
+    </h3>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0;">
+      Automated heuristic pattern layer detecting MFS financial fraud typologies in Bangladesh.
+    </p>
+  </div>
+
+  <div class="kpi-grid" id="scam-typology-cards" style="grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); margin-bottom:24px;">
+    <!-- Injected dynamically via app.js -->
+  </div>
+</section>

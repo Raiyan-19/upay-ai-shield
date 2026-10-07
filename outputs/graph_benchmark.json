@@ -1,0 +1,85 @@
+{
+  "title": "upay AI Shield \u2014 Model A vs Model B Temporal Graph Ablation Benchmark",
+  "evaluation_protocol": "Strict Chronological Holdout (Oldest 70% Train, Next 15% Val, Latest 15% Test)",
+  "temporal_window_train": "2026-01-01T01:07:00 to 2026-09-13T11:30:00",
+  "temporal_window_test": "2026-11-07T11:36:00 to 2026-12-31T22:48:00",
+  "test_set_size": 3000,
+  "test_fraud_prevalence": 0.082,
+  "evaluated_at": "2026-10-07T05:40:05.698363+00:00",
+  "models_benchmark": {
+    "Logistic Regression (Tabular)": {
+      "precision": 0.9915,
+      "recall": 0.9472,
+      "f1_score": 0.9688,
+      "pr_auc": 0.9783,
+      "roc_auc": 0.9949,
+      "false_positive_rate": 0.0007,
+      "confusion_matrix": {
+        "true_negatives": 2752,
+        "false_positives": 2,
+        "false_negatives": 13,
+        "true_positives": 233
+      },
+      "alerts_per_100k_txs": 7833,
+      "total_test_samples": 3000,
+      "actual_frauds_in_test": 246
+    },
+    "Random Forest (Tabular)": {
+      "precision": 1.0,
+      "recall": 0.9675,
+      "f1_score": 0.9835,
+      "pr_auc": 0.9961,
+      "roc_auc": 0.9996,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "true_negatives": 2754,
+        "false_positives": 0,
+        "false_negatives": 8,
+        "true_positives": 238
+      },
+      "alerts_per_100k_txs": 7933,
+      "total_test_samples": 3000,
+      "actual_frauds_in_test": 246
+    },
+    "Model A: XGBoost (Tabular Only)": {
+      "precision": 1.0,
+      "recall": 0.9634,
+      "f1_score": 0.9814,
+      "pr_auc": 0.996,
+      "roc_auc": 0.9996,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "true_negatives": 2754,
+        "false_positives": 0,
+        "false_negatives": 9,
+        "true_positives": 237
+      },
+      "alerts_per_100k_txs": 7900,
+      "total_test_samples": 3000,
+      "actual_frauds_in_test": 246
+    },
+    "Model B: XGBoost (Tabular + Graph)": {
+      "precision": 1.0,
+      "recall": 0.9878,
+      "f1_score": 0.9939,
+      "pr_auc": 0.9964,
+      "roc_auc": 0.999,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "true_negatives": 2754,
+        "false_positives": 0,
+        "false_negatives": 3,
+        "true_positives": 243
+      },
+      "alerts_per_100k_txs": 8100,
+      "total_test_samples": 3000,
+      "actual_frauds_in_test": 246
+    }
+  },
+  "delta_model_b_vs_model_a": {
+    "pr_auc_lift": 0.0004,
+    "f1_lift": 0.0125,
+    "recall_lift": 0.0244,
+    "fpr_reduction": 0.0
+  }
+}

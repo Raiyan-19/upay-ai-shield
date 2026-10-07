@@ -22,8 +22,13 @@ from backend.models.case import Case, CaseEvent
 from backend.models.audit import AnalystFeedback, AuditLog
 from backend.services.auth_service import AuthService
 
-CUSTOMERS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_5000_customers (1).csv")
-TRANSACTIONS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_20000_transactions (1).csv")
+CUSTOMERS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_5000_customers.csv")
+if not os.path.exists(CUSTOMERS_CSV):
+    CUSTOMERS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_5000_customers (1).csv")
+
+TRANSACTIONS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_20000_transactions.csv")
+if not os.path.exists(TRANSACTIONS_CSV):
+    TRANSACTIONS_CSV = os.path.join(BASE_DIR, "data", "upay_ai_shield_20000_transactions (1).csv")
 
 
 def seed_production_database():
@@ -131,78 +136,8 @@ def seed_production_database():
 
         # 4. Generate Formal Case Management Records for High-Risk Transactions
         print("  [4/4] Indexing High-Risk Transactions into Case Management...")
-        existing_case_txs = set(r[0] for r in db.query(Case.transaction_id).all())
-        new_cases = []
-        new_events = []
-        case_counter = db.query(Case).count() + 1000
-
-        analyst_pool = ["Tariq Hassan", "Fatima Begum", "Shafiqul Islam", "Nasrin Akhter"]
-
-        if not high_risk_txs:
-            db_high = db.query(Transaction).filter(
-                (Transaction.demo_risk_score >= 70.0) | (Transaction.risk_level.in_(["HIGH", "CRITICAL"]))
-            ).order_by(Transaction.demo_risk_score.desc()).limit(500).all()
-            high_risk_txs = [
-                {
-                    "transaction_id": t.transaction_id,
-                    "customer_id": t.customer_id,
-                    "amount": t.amount,
-                    "demo_risk_score": t.demo_risk_score,
-                    "risk_level": t.risk_level,
-                    "amount_deviation": t.amount_deviation
-                } for t in db_high
-            ]
-
-        for tx in high_risk_txs[:450]:  # Index top 450 high risk transactions as formal cases (400+ cases requirement)
-            if tx["transaction_id"] not in existing_case_txs:
-                case_counter += 1
-                case_id = f"CASE-{case_counter}"
-                priority = "CRITICAL" if tx["demo_risk_score"] >= 85.0 or tx["risk_level"] == "CRITICAL" else "HIGH"
-                assigned = analyst_pool[case_counter % len(analyst_pool)]
-                
-                # Determine status
-                status = "OPEN" if case_counter % 3 == 0 else ("UNDER_REVIEW" if case_counter % 3 == 1 else "RESOLVED")
-                decision = "CONFIRM_SUSPICIOUS" if status == "RESOLVED" else None
-
-                new_cases.append({
-                    "case_id": case_id,
-                    "transaction_id": tx["transaction_id"],
-                    "customer_id": tx["customer_id"],
-                    "status": status,
-                    "priority": priority,
-                    "assigned_analyst": assigned,
-                    "risk_score": tx["demo_risk_score"],
-                    "risk_level": tx["risk_level"],
-                    "decision": decision,
-                    "analyst_notes": f"Automated risk escalation: Transaction {tx['transaction_id']} (৳{tx['amount']:,.2f}) scored {tx['demo_risk_score']:.1f}/100 with deviation {tx['amount_deviation']:.1f}x.",
-                    "created_at": now_dt - timedelta(hours=(case_counter % 72)),
-                    "updated_at": now_dt
-                })
-
-                new_events.append({
-                    "case_id": case_id,
-                    "event_type": "CREATED",
-                    "analyst_id": assigned,
-                    "description": f"Statutory triage file opened for transfer {tx['transaction_id']}.",
-                    "created_at": now_dt - timedelta(hours=(case_counter % 72))
-                })
-
-                if status == "RESOLVED":
-                    new_events.append({
-                        "case_id": case_id,
-                        "event_type": "DECISION_RECORDED",
-                        "analyst_id": assigned,
-                        "description": "Case reviewed and confirmed suspicious. Forwarded for statutory BFIU filing.",
-                        "created_at": now_dt - timedelta(hours=(case_counter % 24))
-                    })
-
-        if new_cases:
-            db.bulk_insert_mappings(Case, new_cases)
-            db.bulk_insert_mappings(CaseEvent, new_events)
-            db.commit()
-            print(f"        -> Indexed {len(new_cases)} formal investigation cases with timeline events.")
-        else:
-            print("        -> Cases queue already synchronized.")
+        from backend.enrich_cases import enrich_cases_database
+        enrich_cases_database()
 
         # Log system audit
         db.add(AuditLog(

@@ -37,3 +37,9 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int = 86400
     user: UserResponse
+
+
+class SwitchSessionRequest(BaseModel):
+    target_username: str = Field(..., min_length=2)
+    password: Optional[str] = None
+

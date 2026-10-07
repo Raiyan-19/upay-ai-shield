@@ -1,11 +1,19 @@
       <section id="cases-view" class="view-section">
-        <!-- Subview Navigation Tabs -->
-        <div class="toolbar" style="margin-bottom:16px;">
+        <!-- Subview Navigation Tabs & Quick Actions -->
+        <div class="toolbar" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div class="filter-pills">
             <button class="filter-pill active" id="case-tab-all" onclick="switchCaseSubview('all')">সকল কেইস (All Cases)</button>
             <button class="filter-pill" id="case-tab-daily" onclick="switchCaseSubview('daily')">দৈনিক কাজের হিসাব (Daily)</button>
             <button class="filter-pill" id="case-tab-weekly" onclick="switchCaseSubview('weekly')">সাপ্তাহিক হিসাব (Weekly)</button>
             <button class="filter-pill" id="case-tab-monthly" onclick="switchCaseSubview('monthly')">মাসিক সামগ্রিক হিসাব (Monthly)</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="exportCasesCsv()">
+              📥 Export CSV
+            </button>
+            <button class="btn btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="loadCasesLedger()">
+              🔄 Refresh
+            </button>
           </div>
         </div>
 
@@ -13,33 +21,33 @@
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-title">Total Cases</div>
-            <div class="kpi-value" id="case-kpi-total">16</div>
+            <div class="kpi-value" id="case-kpi-total">1,050</div>
             <div class="kpi-subtext">Compliance Queue</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-title">Open Triage</div>
-            <div class="kpi-value" style="color:var(--danger-red);" id="case-kpi-open">4</div>
+            <div class="kpi-value" style="color:var(--danger-red);" id="case-kpi-open">98</div>
             <div class="kpi-subtext">Awaiting analyst action</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-title">Under Review</div>
-            <div class="kpi-value" style="color:#B45309;" id="case-kpi-review">4</div>
+            <div class="kpi-value" style="color:#B45309;" id="case-kpi-review">126</div>
             <div class="kpi-subtext">Active outreach in progress</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-title">Resolved Determinations</div>
-            <div class="kpi-value" style="color:var(--success-green);" id="case-kpi-resolved">4</div>
-            <div class="kpi-subtext"><span class="trend-up" id="case-kpi-rate">25.0%</span> Resolution Rate</div>
+            <div class="kpi-value" style="color:var(--success-green);" id="case-kpi-resolved">746</div>
+            <div class="kpi-subtext"><span class="trend-up" id="case-kpi-rate">71.0%</span> Resolution Rate</div>
           </div>
         </div>
 
         <!-- Subview 1: All Cases -->
         <div id="subview-cases-all">
           <div class="toolbar">
-            <div class="toolbar-left">
+            <div class="toolbar-left" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
               <div class="search-box">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="case-search-input" placeholder="Search Case ID, Customer, Analyst..." oninput="handleCaseSearch(this.value)">
+                <input type="text" id="case-search-input" placeholder="Search Case ID, Tx ID, Customer, Officer..." oninput="handleCaseSearch(this.value)">
               </div>
 
               <!-- Quick Date Presets -->
@@ -50,9 +58,12 @@
                 <button class="filter-pill" onclick="setCaseDateFilter('THIS_WEEK', this)">This Week</button>
                 <button class="filter-pill" onclick="setCaseDateFilter('THIS_MONTH', this)">This Month</button>
               </div>
+
+              <!-- Active Date Filter Pill Indicator -->
+              <div id="case-active-date-filter" style="display:none; align-items:center; background:rgba(30,58,138,0.1); color:var(--upay-blue); border:1px solid rgba(30,58,138,0.25); border-radius:20px; padding:3px 10px; font-size:12px;"></div>
             </div>
 
-            <div class="toolbar-right">
+            <div class="toolbar-right" style="display:flex; align-items:center; gap:8px;">
               <select class="select-control" id="case-status-select" onchange="applyCaseFilters()">
                 <option value="ALL">All Statuses</option>
                 <option value="OPEN">OPEN</option>
@@ -68,6 +79,10 @@
                 <option value="MEDIUM">MEDIUM</option>
                 <option value="LOW">LOW</option>
               </select>
+
+              <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px;" onclick="resetCaseFilters()" title="Reset all filters">
+                ✕ Reset
+              </button>
             </div>
           </div>
 
@@ -80,18 +95,42 @@
                       <th>Case ID</th>
                       <th>Transaction ID</th>
                       <th>Customer ID</th>
+                      <th>Channel / Type</th>
+                      <th>Amount</th>
+                      <th>Location</th>
                       <th>Status</th>
                       <th>Priority</th>
                       <th>Assigned Officer</th>
                       <th>Risk Score</th>
                       <th>Formal Decision</th>
+                      <th>Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody id="cases-table-body">
-                    <!-- Populated via app.js -->
+                    <!-- Populated dynamically via app.js -->
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Pagination Bar -->
+              <div class="pagination-bar" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-top:1px solid var(--border-color, #E2E8F0); background:var(--surface-color, #FFFFFF); border-bottom-left-radius:8px; border-bottom-right-radius:8px;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                  <span id="case-pagination-info" style="font-size:13px; color:var(--text-secondary); font-weight:500;">Showing 1-25 of 1,050 cases</span>
+                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-secondary);">
+                    <span>Show:</span>
+                    <select class="select-control" id="case-limit-select" style="padding:2px 8px; font-size:12px; height:28px;" onchange="setCasePageSize(this.value)">
+                      <option value="25" selected>25 per page</option>
+                      <option value="50">50 per page</option>
+                      <option value="100">100 per page</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="pagination-controls" style="display:flex; align-items:center; gap:8px;">
+                  <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" id="btn-case-prev" onclick="changeCasePage(-1)">Previous</button>
+                  <span id="case-current-page-num" style="font-weight:700; padding:0 8px; font-size:13px;">1</span>
+                  <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" id="btn-case-next" onclick="changeCasePage(1)">Next</button>
+                </div>
               </div>
             </div>
           </div>
@@ -100,8 +139,12 @@
         <!-- Subview 2: Daily Breakdown -->
         <div id="subview-cases-daily" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Daily Workload & Progress Breakdown</h3>
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h3 class="card-title">Daily Workload & Progress Breakdown</h3>
+                <div class="card-subtitle">Real-time statutory triage metrics per calendar day</div>
+              </div>
+              <span class="badge badge-channel">Interactive Date Drilldown</span>
             </div>
             <div class="card-body" style="padding:0;">
               <table class="data-table">
@@ -110,8 +153,10 @@
                     <th>Date</th>
                     <th>Bengali Cohort</th>
                     <th>Total Cases Triaged</th>
-                    <th>Resolved Cases</th>
-                    <th>Pending Open</th>
+                    <th>Workload Status Breakdown</th>
+                    <th>Resolution Rate</th>
+                    <th>Avg Risk Score</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="daily-cases-table">
@@ -125,17 +170,23 @@
         <!-- Subview 3: Weekly Trends -->
         <div id="subview-cases-weekly" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Weekly Cohort Performance</h3>
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h3 class="card-title">Weekly Cohort Performance</h3>
+                <div class="card-subtitle">Weekly case volume, resolution velocity and capital protected</div>
+              </div>
+              <span class="badge badge-low">Rolling 6-Week Window</span>
             </div>
             <div class="card-body" style="padding:0;">
               <table class="data-table">
                 <thead>
                   <tr>
                     <th>Weekly Period</th>
+                    <th>Date Range</th>
                     <th>Total Cases</th>
                     <th>Resolved Cases</th>
                     <th>Daily Resolution Velocity</th>
+                    <th>Capital Protected (BDT)</th>
                   </tr>
                 </thead>
                 <tbody id="weekly-cases-table">
@@ -149,16 +200,21 @@
         <!-- Subview 4: Monthly Executive Overview -->
         <div id="subview-cases-monthly" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Monthly Executive Workload Overview</h3>
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h3 class="card-title">Monthly Executive Workload Overview</h3>
+                <div class="card-subtitle">Enterprise monthly risk management ledger & protected balance</div>
+              </div>
+              <span class="badge badge-medium">Quarterly Horizon</span>
             </div>
             <div class="card-body" style="padding:0;">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Month</th>
+                    <th>Calendar Month</th>
                     <th>Cases Handled</th>
                     <th>Total Resolved</th>
+                    <th>Resolution Rate</th>
                     <th>Capital Protected (BDT)</th>
                   </tr>
                 </thead>

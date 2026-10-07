@@ -27,4 +27,7 @@ class AuditLog(Base):
     details = Column(Text, default="")
     ip_address = Column(String(64), nullable=True)
     user_agent = Column(String(256), nullable=True)
+    prev_hash = Column(String(64), nullable=True, default="GENESIS")
+    curr_hash = Column(String(64), nullable=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+

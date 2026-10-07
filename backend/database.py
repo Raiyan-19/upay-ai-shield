@@ -7,10 +7,24 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, Text, Bool
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "upay_ai_shield.db")
-DATABASE_URL = f"sqlite:///{DB_PATH}"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    DB_PATH = os.path.join(BASE_DIR, "upay_ai_shield.db")
+    DATABASE_URL = f"sqlite:///{DB_PATH}"
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -111,7 +125,21 @@ class AnalystFeedback(Base):
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    # Auto-migrate columns for SQLite if existing database lacks newer fields
+    try:
+        with engine.connect() as conn:
+            # Check audit_logs columns
+            res = conn.exec_driver_sql("PRAGMA table_info(audit_logs);").fetchall()
+            existing_cols = [r[1] for r in res]
+            if "prev_hash" not in existing_cols:
+                conn.exec_driver_sql("ALTER TABLE audit_logs ADD COLUMN prev_hash VARCHAR(64) DEFAULT 'GENESIS';")
+            if "curr_hash" not in existing_cols:
+                conn.exec_driver_sql("ALTER TABLE audit_logs ADD COLUMN curr_hash VARCHAR(64);")
+            conn.commit()
+    except Exception as e:
+        pass
     seed_db_if_empty()
+
 
 
 def seed_db_if_empty():

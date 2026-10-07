@@ -49,10 +49,7 @@ class GeminiAssistant:
         self.active_model = None
         self.model_candidates = [
             "gemini-2.5-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-flash-latest"
+            "gemini-2.0-flash"
         ]
         self._init_client()
 
@@ -94,7 +91,7 @@ class GeminiAssistant:
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.2}
         }
-        res = requests.post(url, headers=headers, json=payload, timeout=25)
+        res = requests.post(url, headers=headers, json=payload, timeout=8)
         if res.status_code == 200:
             data = res.json()
             candidates = data.get("candidates", [])
@@ -147,8 +144,8 @@ class GeminiAssistant:
         # Try REST as final fallback even if SDK failed
         if self.sdk_type != "rest":
             try:
-                text = self._call_rest_api(prompt, "gemini-1.5-flash")
-                self.active_model = "gemini-1.5-flash"
+                text = self._call_rest_api(prompt, "gemini-2.5-flash")
+                self.active_model = "gemini-2.5-flash"
                 return text
             except Exception:
                 pass

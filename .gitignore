@@ -62,3 +62,13 @@ Thumbs.db
 # Large transient artifacts & archives
 scratch/
 *.zip
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Test & coverage caches
+.pytest_cache/
+.coverage
+htmlcov/

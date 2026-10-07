@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc, asc
 from backend.models.case import Case, CaseEvent
 from backend.models.transaction import Transaction, Customer
@@ -18,10 +18,12 @@ class CaseService:
         priority: Optional[str] = None,
         assigned_analyst: Optional[str] = None,
         search: Optional[str] = None,
+        date_preset: Optional[str] = None,
+        specific_date: Optional[str] = None,
         sort_by: Optional[str] = "created_at",
         sort_dir: Optional[str] = "desc"
     ) -> Tuple[List[Case], int]:
-        query = db.query(Case)
+        query = db.query(Case).options(joinedload(Case.transaction))
 
         if status and status.upper() != "ALL":
             query = query.filter(Case.status == status.upper())
@@ -32,12 +34,43 @@ class CaseService:
         if assigned_analyst and assigned_analyst.lower() != "all":
             query = query.filter(Case.assigned_analyst.ilike(f"%{assigned_analyst}%"))
 
+        if specific_date:
+            try:
+                dt = datetime.strptime(specific_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                query = query.filter(Case.created_at >= dt, Case.created_at < dt + timedelta(days=1))
+            except Exception:
+                pass
+        elif date_preset and date_preset.upper() != "ALL":
+            dp = date_preset.upper()
+            now = datetime.now(timezone.utc)
+            if dp == "TODAY":
+                start_today = datetime(now.year, now.month, now.day, tzinfo=timezone.utc)
+                query = query.filter(Case.created_at >= start_today)
+            elif dp == "YESTERDAY":
+                yesterday = now - timedelta(days=1)
+                start_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day, tzinfo=timezone.utc)
+                end_yesterday = datetime(now.year, now.month, now.day, tzinfo=timezone.utc)
+                query = query.filter(Case.created_at >= start_yesterday, Case.created_at < end_yesterday)
+            elif dp == "THIS_WEEK":
+                start_week = now - timedelta(days=7)
+                query = query.filter(Case.created_at >= start_week)
+            elif dp == "THIS_MONTH":
+                start_month = now - timedelta(days=30)
+                query = query.filter(Case.created_at >= start_month)
+            else:
+                try:
+                    dt = datetime.strptime(date_preset, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                    query = query.filter(Case.created_at >= dt, Case.created_at < dt + timedelta(days=1))
+                except Exception:
+                    pass
+
         if search:
             search_pattern = f"%{search}%"
             query = query.filter(
                 (Case.case_id.ilike(search_pattern)) |
                 (Case.transaction_id.ilike(search_pattern)) |
                 (Case.customer_id.ilike(search_pattern)) |
+                (Case.assigned_analyst.ilike(search_pattern)) |
                 (Case.analyst_notes.ilike(search_pattern))
             )
 

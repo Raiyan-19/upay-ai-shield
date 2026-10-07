@@ -12,24 +12,39 @@ Covers all Universal Engineering Rules:
 
 import sys
 import json
+import os
 import urllib.request
 import urllib.error
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_URL = "http://127.0.0.1:8000"
+_port = os.getenv("PORT", "8000")
+BASE_URL = os.getenv("TEST_BASE_URL", f"http://127.0.0.1:{_port}")
+_test_client = None
+
+def _get_test_client():
+    global _test_client
+    if _test_client is None:
+        try:
+            from fastapi.testclient import TestClient
+            from backend.main import app
+            _test_client = TestClient(app)
+        except Exception as e:
+            print(f"[Warning] Could not initialize TestClient fallback: {e}")
+    return _test_client
 
 
 def send_request(url: str, method: str = "GET", data: dict = None, token: str = None):
-    req = urllib.request.Request(f"{BASE_URL}{url}", method=method)
-    if data is not None:
-        req.data = json.dumps(data).encode("utf-8")
-        req.add_header("Content-Type", "application/json")
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
+    # Try live HTTP server first
     try:
-        res = urllib.request.urlopen(req)
+        req = urllib.request.Request(f"{BASE_URL}{url}", method=method)
+        if data is not None:
+            req.data = json.dumps(data).encode("utf-8")
+            req.add_header("Content-Type", "application/json")
+        if token:
+            req.add_header("Authorization", f"Bearer {token}")
+        res = urllib.request.urlopen(req, timeout=2)
         raw = res.read()
         try:
             body = json.loads(raw.decode("utf-8"))
@@ -43,6 +58,31 @@ def send_request(url: str, method: str = "GET", data: dict = None, token: str = 
         except Exception:
             body = raw
         return e.code, e.headers, body
+    except Exception:
+        # Fallback to in-process TestClient
+        client = _get_test_client()
+        if client is not None:
+            headers = {}
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+            if method.upper() == "GET":
+                r = client.get(url, headers=headers)
+            elif method.upper() == "POST":
+                r = client.post(url, json=data, headers=headers)
+            elif method.upper() == "PATCH":
+                r = client.patch(url, json=data, headers=headers)
+            elif method.upper() == "DELETE":
+                r = client.delete(url, headers=headers)
+            else:
+                r = client.request(method, url, json=data, headers=headers)
+
+            try:
+                body = r.json()
+            except Exception:
+                body = r.text
+            return r.status_code, r.headers, body
+        raise
+
 
 
 def run_all_checks():
@@ -176,6 +216,31 @@ def run_all_checks():
             print(f"  [FAIL] Static Artifact Missing: {asset_path} (status={status})")
             all_passed = False
 
+    # 8. Bangla MFS Scam NLP Intelligence Engine (data_new Integration)
+    print("\n[CHECK 8] Bangla MFS Scam NLP Intelligence Engine & data_new Integration")
+    status, _, scam_stats = send_request("/api/v1/scam/stats")
+    if status == 200 and scam_stats.get("total_samples") == 5416 and scam_stats.get("domains_count") >= 15:
+        print(f"  [PASS] Scam Dataset Stats: {scam_stats['total_samples']} samples across {scam_stats['domains_count']} domains (Scam ratio: {scam_stats['scam_ratio_pct']}%)")
+    else:
+        print(f"  [FAIL] Scam stats failed: status={status}, body={scam_stats}")
+        all_passed = False
+
+    # Test live scam classification
+    status, _, scam_res = send_request("/api/v1/scam/analyze", method="POST", data={"text": "আপনার উপায় একাউন্ট সাময়িক স্থগিত করা হয়েছে। অবিলম্বে পিন এবং ওটিপি পাঠান।"})
+    if status == 200 and scam_res.get("is_scam") is True and scam_res.get("risk_score") >= 80.0:
+        print(f"  [PASS] AI Scam Classifier: Accurately caught block threat (Score={scam_res['risk_score']}%, Severity={scam_res['severity']})")
+    else:
+        print(f"  [FAIL] Scam classifier failed on attack prompt: status={status}, body={scam_res}")
+        all_passed = False
+
+    # Test benign notice
+    status, _, legit_res = send_request("/api/v1/scam/analyze", method="POST", data={"text": "আপনার অ্যাকাউন্টে ২৫০০ টাকা ক্যাশ-ইন সফল হয়েছে। বর্তমান ব্যালেন্স ৭৪২০ টাকা।"})
+    if status == 200 and legit_res.get("is_scam") is False and legit_res.get("risk_score") < 25.0:
+        print(f"  [PASS] AI Scam Classifier: Accurately allowed genuine MFS notice (Score={legit_res['risk_score']}%, Severity={legit_res['severity']})")
+    else:
+        print(f"  [FAIL] Scam classifier failed on benign prompt: status={status}, body={legit_res}")
+        all_passed = False
+
     print("\n" + "=" * 70)
     if all_passed:
         print("ALL PRODUCTION READINESS AUDIT GATES PASSED (100% COMPLIANT)!")
@@ -183,6 +248,7 @@ def run_all_checks():
         print("SOME PRODUCTION READINESS CHECKS FAILED.")
     print("=" * 70 + "\n")
     return all_passed
+
 
 
 if __name__ == "__main__":

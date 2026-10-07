@@ -11,10 +11,12 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">10-Feature Behavioral Telemetry Form</h3>
-              <div class="preset-group">
+              <div class="preset-group" style="display:flex; flex-wrap:wrap; gap:8px;">
                 <button class="preset-btn" onclick="fillSimulatorPreset('normal')">Preset Normal</button>
                 <button class="preset-btn" onclick="fillSimulatorPreset('ato')">Preset ATO</button>
                 <button class="preset-btn" onclick="fillSimulatorPreset('burst')">Preset Burst</button>
+                <button class="preset-btn" style="background:#005BAC; color:#fff; font-weight:700;" onclick="fillSimulatorPreset('worked_example')">⭐ Judge 1 Scenario: 3:15 AM ৳25k ATO</button>
+                <button class="preset-btn" style="background:#10B981; color:#fff; font-weight:700;" onclick="openCustomerAppealModal()">🛡️ Customer Appeal UX</button>
               </div>
             </div>
             <div class="card-body">

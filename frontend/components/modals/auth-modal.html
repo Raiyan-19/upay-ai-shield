@@ -1,55 +1,193 @@
-  <div class="modal-overlay" id="auth-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.7); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:14px; width:480px; max-width:92vw; box-shadow:var(--shadow-xl); overflow:hidden;">
-      <div style="padding:18px 22px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <h3 style="font-size:16px; font-weight:700; margin:0;">Officer Authentication & Desk Clearance</h3>
-          <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0 0;">Sign in with authorized credentials or switch active demo role</p>
+  <!-- Executive Officer Authentication & Real-Time Active Session Switcher Modal -->
+  <div class="modal-overlay" id="auth-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center; padding:16px;" onclick="handleAuthModalOverlayClick(event)">
+    <div class="modal-card auth-modal-card" style="background:var(--surface-pure, #ffffff); border:1px solid rgba(0,91,172,0.18); border-radius:18px; width:640px; max-width:96vw; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 25px 60px -15px rgba(15,23,42,0.4), 0 0 0 1px rgba(0,91,172,0.08); overflow:hidden; animation:modalPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);" onclick="event.stopPropagation()">
+      
+      <!-- Top Brand Accent Bar -->
+      <div style="height:4px; width:100%; background:linear-gradient(90deg, var(--upay-blue, #005BAC) 0%, var(--upay-yellow, #FFCD00) 100%);"></div>
+
+      <!-- Modal Header -->
+      <div style="padding:18px 24px 14px; border-bottom:1px solid var(--border-subtle, #E2E8F0); display:flex; justify-content:space-between; align-items:flex-start; background:linear-gradient(180deg, rgba(0,91,172,0.03) 0%, transparent 100%);">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="width:40px; height:40px; border-radius:12px; background:var(--upay-blue-tint, #E8F2FC); color:var(--upay-blue, #005BAC); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 8px rgba(0,91,172,0.15);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h3 style="font-size:17px; font-weight:800; color:var(--text-primary, #0F172A); margin:0; letter-spacing:-0.3px;">Personnel Session Clearance</h3>
+              <span id="modal-realtime-badge" style="display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; background:rgba(16,185,129,0.12); color:var(--success-green, #10B981); border:1px solid rgba(16,185,129,0.25);">
+                <span style="width:6px; height:6px; border-radius:50%; background:var(--success-green, #10B981); display:inline-block; box-shadow:0 0 6px var(--success-green, #10B981);"></span>
+                REALTIME SYNC
+              </span>
+            </div>
+            <p style="font-size:12px; color:var(--text-secondary, #475569); margin:2px 0 0 0;">Switch active officer desk instantly or authenticate institutional credentials</p>
+          </div>
         </div>
-        <button class="btn btn-icon" onclick="closeAuthModal()" style="font-size:18px; padding:4px 8px;">&times;</button>
+        <button type="button" class="btn btn-icon" onclick="closeAuthModal()" title="Close dialog (Esc)" style="width:32px; height:32px; font-size:18px; border-radius:50%; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s ease;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
 
-      <div style="padding:20px 22px;">
-        <!-- Quick Role Switch Presets -->
-        <label style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:8px;">Instant Role Switch (One-Click Demo)</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px;">
-          <button class="btn btn-secondary" onclick="quickLogin('admin', 'Admin@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
-            <strong style="color:var(--critical-red);">System Admin</strong>
-            <span style="font-size:11px; color:var(--text-secondary);">Full clearance + user mgmt</span>
+      <!-- Scrollable Modal Body -->
+      <div style="padding:18px 24px; overflow-y:auto; flex:1;">
+        
+        <!-- =============================================================== -->
+        <!-- REAL-TIME CURRENT ACTIVE SESSION HERO CARD -->
+        <!-- =============================================================== -->
+        <div id="modal-current-session-hero" style="margin-bottom:18px; padding:14px 18px; border-radius:14px; background:linear-gradient(135deg, rgba(0,91,172,0.06) 0%, rgba(255,205,0,0.08) 100%); border:1px solid rgba(0,91,172,0.2); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="position:relative;">
+              <div id="modal-hero-avatar" style="width:46px; height:46px; border-radius:12px; background:var(--upay-blue, #005BAC); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; box-shadow:0 3px 10px rgba(0,91,172,0.25);">
+                AD
+              </div>
+              <span style="position:absolute; bottom:-2px; right:-2px; width:12px; height:12px; border-radius:50%; background:var(--success-green, #10B981); border:2px solid #fff; box-shadow:0 0 6px var(--success-green, #10B981);"></span>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span id="modal-hero-name" style="font-size:14px; font-weight:800; color:var(--text-primary, #0F172A);">System Administrator</span>
+                <span id="modal-hero-username" style="font-size:12px; color:var(--text-secondary, #64748B); font-family:monospace; background:rgba(0,0,0,0.04); padding:1px 6px; border-radius:6px;">@admin</span>
+                <span id="modal-hero-role-pill" style="font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; background:rgba(239,68,68,0.15); color:var(--critical-red, #EF4444); text-transform:uppercase; letter-spacing:0.5px;">ADMIN CLEARANCE</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; margin-top:3px; font-size:12px; color:var(--text-secondary, #475569); flex-wrap:wrap;">
+                <span id="modal-hero-dept">Fraud Operations Management</span>
+                <span>•</span>
+                <span style="display:inline-flex; align-items:center; gap:4px; color:var(--success-green, #10B981); font-weight:600;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Active Bearer Desk
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn btn-secondary" onclick="refreshModalDesks()" title="Refresh live sessions from database" style="font-size:11.5px; padding:6px 10px; display:inline-flex; align-items:center; gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span>Sync</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="handleAuthLogout()" title="Sign out current session" style="font-size:11.5px; padding:6px 10px; color:var(--critical-red, #EF4444); border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- NAVIGATION SEGMENTED TABS -->
+        <!-- =============================================================== -->
+        <div style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border-subtle, #E2E8F0); padding-bottom:12px;">
+          <button type="button" id="tab-btn-desks" class="auth-modal-tab-btn active" onclick="switchAuthModalTab('desks')" style="padding:8px 14px; font-size:12.5px; font-weight:700; border-radius:8px; border:none; background:var(--upay-blue, #005BAC); color:#fff; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.15s ease;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Live Officer Desks</span>
+            <span id="modal-tab-desks-badge" style="background:rgba(255,255,255,0.25); font-size:10px; padding:1px 6px; border-radius:10px; font-weight:800;">5</span>
           </button>
-          <button class="btn btn-secondary" onclick="quickLogin('tariq', 'Analyst@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
-            <strong style="color:var(--upay-yellow);">Senior Officer (Tariq)</strong>
-            <span style="font-size:11px; color:var(--text-secondary);">Case sign-off & SAR triage</span>
-          </button>
-          <button class="btn btn-secondary" onclick="quickLogin('analyst', 'Analyst@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
-            <strong style="color:var(--upay-blue);">Tier-1 Analyst (Rafiq)</strong>
-            <span style="font-size:11px; color:var(--text-secondary);">Investigations & ledger review</span>
-          </button>
-          <button class="btn btn-secondary" onclick="quickLogin('viewer', 'Viewer@1234')" style="text-align:left; padding:8px 12px; font-size:12px; display:flex; flex-direction:column; gap:2px;">
-            <strong style="color:var(--success-green);">Compliance Auditor</strong>
-            <span style="font-size:11px; color:var(--text-secondary);">Read-only statutory audit</span>
+          
+          <button type="button" id="tab-btn-manual" class="auth-modal-tab-btn" onclick="switchAuthModalTab('manual')" style="padding:8px 14px; font-size:12.5px; font-weight:700; border-radius:8px; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.15s ease;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Manual Credential Login</span>
           </button>
         </div>
 
-        <div style="position:relative; text-align:center; margin:16px 0;">
-          <hr style="border:none; border-top:1px solid var(--border-subtle); margin:0;">
-          <span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:var(--surface-card); padding:0 10px; font-size:11px; color:var(--text-secondary); font-weight:600;">OR SIGN IN WITH CREDENTIALS</span>
+        <!-- =============================================================== -->
+        <!-- TAB 1: LIVE OFFICER DESKS SWITCHER (REALTIME GRID) -->
+        <!-- =============================================================== -->
+        <div id="tab-pane-desks">
+          
+          <!-- Live Search & Role Filter Header -->
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+            <div style="position:relative; flex:1; min-width:200px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary, #94A3B8)" stroke-width="2" style="position:absolute; left:10px; top:50%; transform:translateY(-50%);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="modal-desk-search" placeholder="Filter by officer name, role, @username..." oninput="filterModalDesks()" style="width:100%; box-sizing:border-box; padding:7px 10px 7px 30px; border-radius:8px; border:1px solid var(--border-subtle, #CBD5E1); font-size:12px; background:var(--surface-pure, #fff); color:var(--text-primary, #0F172A); outline:none;">
+            </div>
+
+            <div style="display:flex; gap:5px; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="desk-role-pill active" onclick="setModalRoleFilter('ALL', this)" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:12px; border:1px solid var(--upay-blue, #005BAC); background:var(--upay-blue, #005BAC); color:#fff; cursor:pointer;">All</button>
+              <button type="button" class="desk-role-pill" onclick="setModalRoleFilter('ADMIN', this)" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:12px; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); cursor:pointer;">Admin</button>
+              <button type="button" class="desk-role-pill" onclick="setModalRoleFilter('SENIOR_OFFICER', this)" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:12px; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); cursor:pointer;">Senior</button>
+              <button type="button" class="desk-role-pill" onclick="setModalRoleFilter('ANALYST', this)" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:12px; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); cursor:pointer;">Analyst</button>
+              <button type="button" class="desk-role-pill" onclick="setModalRoleFilter('VIEWER', this)" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:12px; border:1px solid var(--border-subtle, #E2E8F0); background:var(--surface-pure, #fff); color:var(--text-secondary, #64748B); cursor:pointer;">Auditor</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Live Desks Container -->
+          <div id="modal-desks-grid" style="display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; padding-right:4px;">
+            <!-- Rendered in real-time by JavaScript -->
+            <div style="text-align:center; padding:24px; color:var(--text-secondary, #64748B); font-size:12px;">
+              <div class="spinner" style="display:inline-block; width:16px; height:16px; border:2px solid rgba(0,91,172,0.2); border-top-color:var(--upay-blue, #005BAC); border-radius:50%; animation:spin 0.6s linear infinite; margin-bottom:6px;"></div>
+              <div>Synchronizing personnel desks from active server...</div>
+            </div>
+          </div>
+
+          <!-- Admin Quick Action: Provision new officer -->
+          <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-subtle, #E2E8F0); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11.5px; color:var(--text-secondary, #64748B);">Need a new statutory clearance profile?</span>
+            <button type="button" onclick="closeAuthModal(); openCreateUserModal();" style="font-size:11.5px; font-weight:700; color:var(--upay-blue, #005BAC); background:none; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:4px; text-decoration:underline;">
+              <span>+ Provision New Officer Account</span>
+            </button>
+          </div>
         </div>
 
-        <form id="auth-login-form" onsubmit="handleManualLogin(event)">
-          <div style="margin-bottom:12px;">
-            <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Username or Official Email</label>
-            <input type="text" id="login-ident" class="filter-input" style="width:100%;" required placeholder="e.g. admin or tariq.hassan@upay.com.bd">
+        <!-- =============================================================== -->
+        <!-- TAB 2: MANUAL CREDENTIAL SIGN-IN -->
+        <!-- =============================================================== -->
+        <div id="tab-pane-manual" style="display:none;">
+          
+          <div style="background:rgba(0,91,172,0.04); border:1px solid rgba(0,91,172,0.15); border-radius:10px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:var(--text-secondary, #475569);">
+            <strong style="color:var(--upay-blue, #005BAC);">Corporate Authentication Gateway:</strong> Enter your official upay credentials. Standard JWT bearer token with RBAC scope will be generated.
           </div>
-          <div style="margin-bottom:16px;">
-            <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Secure Password</label>
-            <input type="password" id="login-pwd" class="filter-input" style="width:100%;" required placeholder="Enter password...">
+
+          <!-- Quick Autofill Helper Chips -->
+          <div style="margin-bottom:14px;">
+            <label style="display:block; font-size:11px; font-weight:700; color:var(--text-tertiary, #94A3B8); text-transform:uppercase; margin-bottom:6px;">Quick Credential Autofill (One-Click Demo)</label>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="btn btn-secondary" onclick="autofillManualLogin('admin', 'Admin@1234')" style="font-size:11px; padding:4px 8px; border-radius:6px;">admin (Superuser)</button>
+              <button type="button" class="btn btn-secondary" onclick="autofillManualLogin('tariq', 'Analyst@1234')" style="font-size:11px; padding:4px 8px; border-radius:6px;">tariq (Senior Lead)</button>
+              <button type="button" class="btn btn-secondary" onclick="autofillManualLogin('analyst', 'Analyst@1234')" style="font-size:11px; padding:4px 8px; border-radius:6px;">analyst (Tier 1)</button>
+              <button type="button" class="btn btn-secondary" onclick="autofillManualLogin('viewer', 'Viewer@1234')" style="font-size:11px; padding:4px 8px; border-radius:6px;">viewer (Auditor)</button>
+              <button type="button" class="btn btn-secondary" onclick="autofillManualLogin('customer', 'Customer@1234')" style="font-size:11px; padding:4px 8px; border-radius:6px; color:#7C3AED;">customer (Kamal)</button>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;">
-            Authenticate Session
-          </button>
-        </form>
+
+          <form id="auth-login-form" onsubmit="handleManualLogin(event)">
+            <div style="margin-bottom:12px;">
+              <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--text-primary, #0F172A);">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--upay-blue, #005BAC)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Username or Official Corporate Email <span style="color:var(--ucb-red, #E30613);">*</span>
+              </label>
+              <input type="text" id="login-ident" class="filter-input" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid var(--border-subtle, #CBD5E1); border-radius:8px; font-size:13px; color:var(--text-primary, #0F172A); background:var(--surface-pure, #fff); outline:none;" required placeholder="e.g. admin or tariq.hassan@upay.com.bd" autocomplete="username">
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <label style="display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:4px; color:var(--text-primary, #0F172A);">
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--upay-blue, #005BAC)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Password Credentials <span style="color:var(--ucb-red, #E30613);">*</span>
+                </span>
+                <button type="button" onclick="toggleAuthPasswordVisibility()" style="background:none; border:none; color:var(--upay-blue, #005BAC); font-size:11px; cursor:pointer; font-weight:600;">Show/Hide</button>
+              </label>
+              <input type="password" id="login-pwd" class="filter-input" style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid var(--border-subtle, #CBD5E1); border-radius:8px; font-size:13px; color:var(--text-primary, #0F172A); background:var(--surface-pure, #fff); outline:none;" required placeholder="Enter institutional password..." autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="login-submit-btn" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px; font-weight:700; border-radius:8px; font-size:13px; display:inline-flex; align-items:center; gap:8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+              <span>Authenticate & Activate Session</span>
+            </button>
+          </form>
+        </div>
+
       </div>
+
+      <!-- Modal Footer -->
+      <div style="padding:12px 24px; border-top:1px solid var(--border-subtle, #E2E8F0); background:var(--base-canvas, #FAFBFC); display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-secondary, #64748B);">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success-green, #10B981)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Statutory BFIU Compliance & Audit Trail Enabled</span>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="closeAuthModal()" style="font-size:12px; padding:5px 12px;">Close</button>
+      </div>
+
     </div>
   </div>
-
-  <!-- ===================================================================== -->

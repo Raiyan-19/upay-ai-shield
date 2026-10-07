@@ -1,0 +1,31 @@
+{
+  "target_transaction": "TX_TARGET_SMURF_06",
+  "amount": 3200.0,
+  "model_a_tabular": {
+    "risk_score": 0.18,
+    "probability": 0.0017587568145245314,
+    "status": "FALSE_NEGATIVE_UNDER_THRESHOLD"
+  },
+  "model_b_graph": {
+    "risk_score": 98.41,
+    "probability": 0.9841433763504028,
+    "status": "TRUE_POSITIVE_DETECTED"
+  },
+  "graph_evidence": {
+    "sender_out_degree": 0.0,
+    "sender_in_degree": 0.0,
+    "receiver_in_degree": 5.0,
+    "receiver_out_degree": 0.0,
+    "sender_unique_receivers": 0.0,
+    "receiver_unique_senders": 5.0,
+    "shared_device_count": 5.0,
+    "sender_fan_out_ratio": 0.0,
+    "receiver_fan_in": 5.0,
+    "rapid_fan_in_24h": 5.0,
+    "rapid_fan_out_24h": 0.0,
+    "transactions_to_receiver_24h": 5.0,
+    "transactions_to_receiver_7d": 5.0,
+    "receiver_degree_centrality": 0.83333,
+    "network_risk_score": 90.0
+  }
+}

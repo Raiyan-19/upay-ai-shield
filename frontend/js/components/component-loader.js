@@ -48,8 +48,9 @@ class ComponentLoader {
       this.mount('#modal-mount', '/components/modals/auth-modal.html')
     ]);
 
-    // Append second modal
+    // Append modals
     await this.mountAppend('#modal-mount', '/components/modals/create-user-modal.html');
+    await this.mountAppend('#modal-mount', '/components/modals/customer-appeal-modal.html');
   }
 
   static async loadView(viewName) {

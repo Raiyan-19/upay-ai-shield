@@ -141,7 +141,8 @@ class AuthService:
             ("admin", "admin@upay.com.bd", "Admin@1234", "System Administrator", UserRole.ADMIN, "Fraud Operations Management"),
             ("tariq", "tariq.hassan@upay.com.bd", "Analyst@1234", "Tariq Hassan", UserRole.SENIOR_OFFICER, "Fraud Investigation Unit"),
             ("analyst", "analyst@upay.com.bd", "Analyst@1234", "Rafiqul Islam", UserRole.ANALYST, "Fraud Operations Tier 1"),
-            ("viewer", "auditor@upay.com.bd", "Viewer@1234", "Farhana Sultana", UserRole.VIEWER, "Compliance & Audit")
+            ("viewer", "auditor@upay.com.bd", "Viewer@1234", "Farhana Sultana", UserRole.VIEWER, "Compliance & Audit"),
+            ("customer", "customer@upay.com.bd", "Customer@1234", "Kamal Hossain (Customer)", UserRole.CUSTOMER, "MFS Retail Accounts (01719283746)")
         ]
         for uname, email, pwd, fname, role, dept in initial_users:
             existing = db.query(User).filter((User.username == uname) | (User.email == email)).first()

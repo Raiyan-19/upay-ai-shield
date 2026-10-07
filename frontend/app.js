@@ -193,9 +193,14 @@ function renderRecentAlerts(alerts) {
       <td><code style="font-size:11px;">${tx.device_id || 'UNKNOWN'}</code></td>
       <td>${tx.location || 'Dhaka'}</td>
       <td>
-        <button class="btn btn-secondary" style="padding:4px 12px; font-size:11px;" onclick="openInvestigationDrawer('${tx.transaction_id}')">
-          Investigate
-        </button>
+        <div style="display:inline-flex; gap:6px;">
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="openInvestigationDrawer('${tx.transaction_id}')">
+            Investigate
+          </button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:10.5px; border-color:rgba(124,58,237,0.3); color:#7C3AED;" onclick="openCustomerAppealForTx('${tx.transaction_id}', ${tx.amount}, '${tx.customer_id}', 'High Risk Nocturnal Alert')" title="View in-app hold notice and self-service appeal">
+            📱 Hold UX
+          </button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -280,9 +285,15 @@ async function loadTransactionsLedger() {
           <td><strong>${Number(tx.risk_score).toFixed(1)}</strong></td>
           <td><span class="badge ${riskClass}">${tx.risk_level}</span></td>
           <td>
-            <button class="btn btn-secondary" style="padding:4px 12px; font-size:11px;" onclick="openInvestigationDrawer('${tx.transaction_id}')">
-              Forensic Triage
-            </button>
+            <div style="display:inline-flex; gap:6px;">
+              <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="openInvestigationDrawer('${tx.transaction_id}')">
+                Forensic Triage
+              </button>
+              ${(tx.risk_level === 'HIGH' || tx.risk_level === 'CRITICAL' || tx.amount >= 20000) ? `
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:10.5px; border-color:rgba(124,58,237,0.3); color:#7C3AED;" onclick="openCustomerAppealForTx('${tx.transaction_id}', ${tx.amount}, '${tx.customer_id}', '${tx.risk_level} Risk Hold')" title="View customer hold screen & appeal ladder">
+                📱 Customer UX
+              </button>` : ''}
+            </div>
           </td>
         </tr>
       `;
@@ -542,7 +553,61 @@ async function openInvestigationDrawer(txId) {
     // ── Section 8: Network Summary ─────────────────────────────────────────
     const netBox = document.getElementById('drawer-network-summary');
     if (netBox) {
-      netBox.innerHTML = `<p>Recipient <code>${recip}</code> and device <code>${devId}</code> have been mapped in the topological intelligence graph. Cross-customer device multi-tenancy check passed.</p>`;
+      netBox.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span>Querying temporal network topology...</span>
+          <div class="spinner-sm" style="display:inline-block; width:14px; height:14px; border:2px solid var(--border-color); border-top-color:var(--primary-color); border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+        </div>
+      `;
+      // Asynchronously fetch temporal graph features for this transaction
+      fetchWithAuth(`/api/v1/network/transaction/${encodeURIComponent(txId_)}/features`)
+        .then(res => res.json())
+        .then(netData => {
+          if (netData.status === 'success' && netData.features) {
+            const f = netData.features;
+            const exp = netData.explanation || {};
+            const netRisk = exp.network_risk_score || 0;
+            const isAlert = netRisk >= 40 || exp.is_fan_in_hub;
+            netBox.innerHTML = `
+              <div style="background:var(--surface-muted); padding:10px 12px; border-radius:8px; margin-bottom:10px; border-left: 3px solid ${isAlert ? 'var(--danger-red)' : 'var(--primary-color)'};">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-secondary); font-weight:600;">Temporal Network Risk</span>
+                    <div style="font-size:16px; font-weight:700; color:${isAlert ? 'var(--danger-red)' : 'var(--text-primary)'};">${netRisk.toFixed(1)} / 100</div>
+                  </div>
+                  <span class="badge ${isAlert ? 'badge-high' : 'badge-low'}">${isAlert ? 'MULE ANOMALY' : 'NORMAL TOPOLOGY'}</span>
+                </div>
+                ${exp.is_fan_in_hub ? `<div style="font-size:11px; color:var(--danger-red); margin-top:4px; font-weight:600;">⚠️ Potential Fan-In Smurfing Hub Detected (24h Inflow: ${f.rapid_fan_in_24h})</div>` : ''}
+                ${exp.is_hardware_shared ? `<div style="font-size:11px; color:var(--warning-amber); margin-top:4px; font-weight:600;">⚠️ Multi-Account Shared Device Detected (${f.shared_device_count} accounts)</div>` : ''}
+              </div>
+              <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; font-size:11px; margin-bottom:10px;">
+                <div style="background:var(--surface-color); padding:6px 8px; border-radius:6px; border:1px solid var(--border-color);">
+                  <div style="color:var(--text-secondary);">24h Fan-In</div>
+                  <div style="font-weight:700; font-size:13px;">${f.rapid_fan_in_24h ?? 0}</div>
+                </div>
+                <div style="background:var(--surface-color); padding:6px 8px; border-radius:6px; border:1px solid var(--border-color);">
+                  <div style="color:var(--text-secondary);">24h Fan-Out</div>
+                  <div style="font-weight:700; font-size:13px;">${f.rapid_fan_out_24h ?? 0}</div>
+                </div>
+                <div style="background:var(--surface-color); padding:6px 8px; border-radius:6px; border:1px solid var(--border-color);">
+                  <div style="color:var(--text-secondary);">Recv In-Degree</div>
+                  <div style="font-weight:700; font-size:13px;">${f.receiver_in_degree ?? 0}</div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                <span style="color:var(--text-secondary);">Recipient: <code>${recip}</code></span>
+                <button class="btn btn-secondary btn-sm" onclick="closeInvestigationDrawerDirectly(); navigateTo('network');" style="padding:4px 8px; font-size:11px;">
+                  Inspect in Entity Graph &rarr;
+                </button>
+              </div>
+            `;
+          } else {
+            netBox.innerHTML = `<p>Recipient <code>${recip}</code> and device <code>${devId}</code> mapped in transaction graph. No anomalous clustering recorded.</p>`;
+          }
+        })
+        .catch(err => {
+          netBox.innerHTML = `<p>Recipient <code>${recip}</code> and device <code>${devId}</code> mapped in transaction graph.</p>`;
+        });
     }
 
     // ── AI Copilot initial message ─────────────────────────────────────────
@@ -800,9 +865,113 @@ function fillSimulatorPreset(type) {
     document.getElementById('sim-check-new-device').checked = false;
     document.getElementById('sim-check-new-receiver').checked = true;
     document.getElementById('sim-check-location').checked = false;
+  } else if (type === 'worked_example' || type === 'judge_scenario') {
+    document.getElementById('sim-input-amount').value = '25000.00';
+    document.getElementById('sim-input-deviation').value = '13.5';
+    document.getElementById('sim-input-hour').value = '3';
+    document.getElementById('sim-input-tx1h').value = '3';
+    document.getElementById('sim-input-tx24h').value = '6';
+    document.getElementById('sim-input-failed').value = '2';
+    document.getElementById('sim-check-new-device').checked = true;
+    document.getElementById('sim-check-new-receiver').checked = true;
+    document.getElementById('sim-check-location').checked = false;
+    if (typeof showToast === 'function') {
+      showToast('Loaded Judge 1 Scenario: 3:15 AM ৳25,000 Cash-Out ATO', 'info');
+    }
   }
   runLiveSimulation();
 }
+
+function openCustomerAppealModal(txData = null) {
+  const modal = document.getElementById('customer-appeal-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  const resBox = document.getElementById('appeal-simulation-result');
+  if (resBox) resBox.style.display = 'none';
+
+  const scenarioEl = document.getElementById('appeal-modal-scenario');
+  const promptEl = document.getElementById('appeal-modal-prompt');
+
+  if (txData && txData.id) {
+    const bdtAmount = Number(txData.amount || 25000).toLocaleString('en-IN');
+    if (scenarioEl) {
+      scenarioEl.innerHTML = `<strong>Active Hold:</strong> ${txData.id} • ${txData.customer || 'CUST03955'} • ৳${bdtAmount} • Flag: ${txData.reason || 'Nocturnal ATO Rule'}`;
+    }
+    if (promptEl) {
+      promptEl.innerHTML = `প্রিয় গ্রাহক, আপনার নিরাপত্তার স্বার্থে এই ক্যাশ-আউট লেনদেনটি (<strong>৳${bdtAmount}</strong>, ট্রানজেকশন ID: ${txData.id}) সাময়িকভাবে যাচাইকরণের জন্য স্থগিত রাখা হয়েছে।`;
+    }
+  } else {
+    if (scenarioEl) {
+      scenarioEl.innerHTML = `<strong>Live Scenario:</strong> 3:15 AM Hospital Emergency Cash-out (৳25,000) by Honest Customer`;
+    }
+    if (promptEl) {
+      promptEl.innerHTML = `প্রিয় গ্রাহক, আপনার নিরাপত্তার স্বার্থে গভীর রাতের এই ক্যাশ-আউট লেনদেনটি (৳২৫,০০০) সাময়িকভাবে যাচাইকরণের জন্য স্থগিত রাখা হয়েছে।`;
+    }
+  }
+}
+
+function openCustomerAppealForCurrentTx() {
+  const current = AppState.activeTransactionData;
+  if (current && current.tx) {
+    openCustomerAppealModal({
+      id: current.tx.transaction_id || AppState.activeTransactionId || 'TX100207',
+      amount: current.tx.amount || 25000,
+      customer: current.tx.customer_id || 'CUST03955',
+      reason: (current.ra && current.ra.decision_action) ? `${current.ra.decision_action} (${current.ra.risk_level || 'HIGH'})` : 'Nocturnal Risk Multiplier'
+    });
+  } else {
+    openCustomerAppealModal({
+      id: AppState.activeTransactionId || 'TX100207',
+      amount: 25000,
+      customer: 'CUST03955',
+      reason: '3:15 AM Emergency Medical Hold'
+    });
+  }
+}
+
+function openCustomerAppealForTx(txId, amount, customerId, reason) {
+  openCustomerAppealModal({
+    id: txId,
+    amount: amount,
+    customer: customerId,
+    reason: reason
+  });
+}
+
+function handleModalOverlayClick(event, modalId) {
+  if (event.target && (event.target.id === modalId || event.target.classList.contains('modal-overlay'))) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
+  }
+}
+
+function closeCustomerAppealModal() {
+  const modal = document.getElementById('customer-appeal-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function simulateAppealResolution(method) {
+  const resBox = document.getElementById('appeal-simulation-result');
+  const title = document.getElementById('appeal-result-title');
+  const desc = document.getElementById('appeal-result-desc');
+  if (!resBox) return;
+
+  resBox.style.display = 'block';
+  if (method === 'biometric') {
+    title.innerText = 'গ্রাহকের বায়োমেট্রিক ফেস লাইভনেস সফল!';
+    desc.innerText = 'Porichoy API-এর মাধ্যমে জাতীয় পরিচয়পত্রের ডেটাবেইসের সাথে ফেস ম্যাচ ৯৯.৪% নিখুঁত হয়েছে। সাময়িক স্থগিতাদেশ প্রত্যাহার করে ক্যাশ-আউট লেনদেন ক্লিয়ার করা হয়েছে (রেসপন্স টাইম: ১২.৪ সেকেন্ড)।';
+    if (typeof showToast === 'function') showToast('Biometric Liveness Verified: ৳25,000 Released (SLA 12s)', 'success');
+  } else if (method === 'otp') {
+    title.innerText = 'OTP ও ইন্টারেক্টিভ ভয়েস কল যাচাই সফল!';
+    desc.innerText = 'নিবন্ধিত সিম কার্ডে প্রেরিত ওয়ান-টাইম সিকিউরিটি কোড যাচাই করা হয়েছে। সাময়িক হোল্ড প্রত্যাহার করা হয়েছে (রেসপন্স টাইম: ২৩.১ সেকেন্ড)।';
+    if (typeof showToast === 'function') showToast('OTP Callback Verified: Cash-Out Released', 'success');
+  } else {
+    title.innerText = 'জরুরি মেডিকেল ডেস্ক ১৬২৬৮-এ সেলফ-আপিল গৃহীত!';
+    desc.innerText = 'হাসপাতালে জরুরি চিকিৎসার জন্য অনুরোধটি সিনিয়র অফিসার তারিক হাসানের ডেস্কে প্রায়োরিটি রিলিজের জন্য পাঠানো হয়েছে। অডিট ট্রেইলে লগ সংরক্ষিত।';
+    if (typeof showToast === 'function') showToast('Emergency Desk 16268 Escalated: Priority Review', 'info');
+  }
+}
+
 
 async function runLiveSimulation() {
   const features = {
@@ -1205,6 +1374,11 @@ async function loadNetworkGraphForTx(customQuery) {
       input.value = data.entity_id;
     }
 
+    const nodeCountEl = document.getElementById('graph-node-count');
+    const edgeCountEl = document.getElementById('graph-edge-count');
+    if (nodeCountEl) nodeCountEl.textContent = (data.nodes || []).length;
+    if (edgeCountEl) edgeCountEl.textContent = (data.edges || []).length;
+
     // Render nodes & edges using multi-tier concentric radial layout
     renderSvgNetwork(svg, data.nodes, data.edges);
 
@@ -1354,13 +1528,13 @@ function renderSvgNetwork(svg, nodes, edges) {
 // ============================================================================
 async function loadCasesLedger() {
   const params = new URLSearchParams({
-    page: AppState.caseCurrentPage,
-    limit: AppState.caseLimit
+    page: AppState.caseCurrentPage || 1,
+    limit: AppState.caseLimit || 25
   });
 
-  if (AppState.caseStatusFilter !== 'ALL') params.append('status', AppState.caseStatusFilter);
-  if (AppState.casePriorityFilter !== 'ALL') params.append('priority', AppState.casePriorityFilter);
-  if (AppState.caseDatePreset !== 'ALL') params.append('date_preset', AppState.caseDatePreset);
+  if (AppState.caseStatusFilter && AppState.caseStatusFilter !== 'ALL') params.append('status', AppState.caseStatusFilter);
+  if (AppState.casePriorityFilter && AppState.casePriorityFilter !== 'ALL') params.append('priority', AppState.casePriorityFilter);
+  if (AppState.caseDatePreset && AppState.caseDatePreset !== 'ALL') params.append('date_preset', AppState.caseDatePreset);
   if (AppState.caseSearchQuery) params.append('search', AppState.caseSearchQuery);
 
   try {
@@ -1370,46 +1544,85 @@ async function loadCasesLedger() {
 
     const casesList = Array.isArray(data.data) ? data.data : (data.data?.items || data.items || []);
     const kpis = data.kpis || data.data?.kpis || {};
-    const totalCasesCount = data.total_count || data.total || data.data?.total || casesList.length;
+    const totalCasesCount = data.total_count ?? data.total ?? data.data?.total ?? casesList.length;
+    const totalPages = data.total_pages || data.data?.total_pages || Math.max(1, Math.ceil(totalCasesCount / (AppState.caseLimit || 25)));
 
     // Update KPI counters
     const elTotal = document.getElementById('case-kpi-total');
-    if (elTotal) elTotal.innerText = kpis.total_cases ?? totalCasesCount;
+    if (elTotal) elTotal.innerText = (kpis.total_cases ?? totalCasesCount).toLocaleString();
     const elOpen = document.getElementById('case-kpi-open');
-    if (elOpen) elOpen.innerText = kpis.open ?? 0;
+    if (elOpen) elOpen.innerText = (kpis.open ?? 0).toLocaleString();
     const elReview = document.getElementById('case-kpi-review');
-    if (elReview) elReview.innerText = kpis.under_review ?? 0;
+    if (elReview) elReview.innerText = (kpis.under_review ?? 0).toLocaleString();
     const elResolved = document.getElementById('case-kpi-resolved');
-    if (elResolved) elResolved.innerText = kpis.resolved ?? 0;
+    if (elResolved) elResolved.innerText = (kpis.resolved ?? 0).toLocaleString();
     const elRate = document.getElementById('case-kpi-rate');
     if (elRate) elRate.innerText = `${kpis.resolution_rate_pct ?? 0}%`;
 
-    // Render Table
+    // Update Pagination Bar
+    const fromIdx = totalCasesCount === 0 ? 0 : (AppState.caseCurrentPage - 1) * AppState.caseLimit + 1;
+    const toIdx = Math.min(AppState.caseCurrentPage * AppState.caseLimit, totalCasesCount);
+    const elPageInfo = document.getElementById('case-pagination-info');
+    if (elPageInfo) {
+      elPageInfo.innerText = totalCasesCount > 0 
+        ? `Showing ${fromIdx}–${toIdx} of ${totalCasesCount.toLocaleString()} cases`
+        : 'No cases matching filters';
+    }
+    const elPageNum = document.getElementById('case-current-page-num');
+    if (elPageNum) elPageNum.innerText = `${AppState.caseCurrentPage} / ${totalPages}`;
+    const btnPrev = document.getElementById('btn-case-prev');
+    if (btnPrev) btnPrev.disabled = AppState.caseCurrentPage <= 1;
+    const btnNext = document.getElementById('btn-case-next');
+    if (btnNext) btnNext.disabled = AppState.caseCurrentPage >= totalPages;
+
     const tbody = document.getElementById('cases-table-body');
     if (!tbody) return;
 
     if (casesList.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--text-tertiary);">No cases matching current filter parameters.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:32px; color:var(--text-tertiary);">No cases matching current filter parameters.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = casesList.map(c => {
       let statusBadge = 'badge-low';
       if (c.status === 'OPEN') statusBadge = 'badge-high';
-      if (c.status === 'UNDER_REVIEW') statusBadge = 'badge-medium';
+      else if (c.status === 'UNDER_REVIEW') statusBadge = 'badge-medium';
+      else if (c.status === 'NEEDS_MORE_INFORMATION') statusBadge = 'badge-neutral';
+
+      const prioColor = c.priority === 'CRITICAL' ? 'var(--danger-red)' : (c.priority === 'HIGH' ? '#EA580C' : 'var(--text-primary)');
+      const scoreColor = c.risk_score >= 85 ? 'var(--danger-red)' : (c.risk_score >= 50 ? '#D97706' : 'var(--success-green)');
+      const amountStr = c.amount !== null && c.amount !== undefined ? `৳${Number(c.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '—';
+      const createdStr = c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
 
       return `
         <tr>
-          <td><strong>${c.case_id}</strong></td>
-          <td><a href="javascript:void(0)" onclick="openInvestigationDrawer('${c.transaction_id}')" style="color:var(--upay-blue); font-weight:600;">${c.transaction_id}</a></td>
-          <td>${c.customer_id}</td>
-          <td><span class="badge ${statusBadge}">${c.status}</span></td>
-          <td><span style="font-weight:700; color:${c.priority === 'CRITICAL' ? 'var(--danger-red)' : 'var(--text-primary)'};">${c.priority}</span></td>
-          <td>${c.assigned_analyst || 'Unassigned'}</td>
-          <td><strong>${Number(c.risk_score).toFixed(1)}</strong></td>
-          <td>${c.decision ? `<span class="badge badge-channel">${c.decision}</span>` : '<span style="color:var(--text-tertiary);">Pending</span>'}</td>
+          <td><strong style="color:var(--text-primary); font-family:monospace;">${c.case_id}</strong></td>
           <td>
-            <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="openInvestigationDrawer('${c.transaction_id}')">
+            <a href="javascript:void(0)" onclick="openInvestigationDrawer('${c.transaction_id}')" style="color:var(--upay-blue); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              <span>${c.transaction_id}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+          </td>
+          <td><span style="font-family:monospace; font-size:12px; color:var(--text-secondary);">${c.customer_id}</span></td>
+          <td>
+            <span class="badge" style="background:var(--surface-muted); color:var(--text-secondary); font-size:11px;">
+              ${c.transaction_type || 'TRANSFER'} • ${c.channel || 'APP'}
+            </span>
+          </td>
+          <td><strong style="color:var(--text-primary); font-size:13px;">${amountStr}</strong></td>
+          <td><span class="badge" style="background:rgba(0,0,0,0.04); font-size:11px;">📍 ${c.location || 'Dhaka'}</span></td>
+          <td><span class="badge ${statusBadge}">${c.status}</span></td>
+          <td><span style="font-weight:700; font-size:12px; color:${prioColor};">${c.priority}</span></td>
+          <td><span style="font-size:12px; color:var(--text-secondary);">${c.assigned_analyst || 'Unassigned'}</span></td>
+          <td>
+            <span class="badge" style="background:rgba(0,0,0,0.04); font-weight:800; color:${scoreColor}; font-size:12px;">
+              ${Number(c.risk_score).toFixed(1)}
+            </span>
+          </td>
+          <td>${c.decision ? `<span class="badge badge-channel" style="font-size:10px;">${c.decision}</span>` : '<span style="color:var(--text-tertiary); font-size:12px;">Pending</span>'}</td>
+          <td><span style="font-size:11px; color:var(--text-tertiary); white-space:nowrap;">${createdStr}</span></td>
+          <td>
+            <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px; font-weight:600;" onclick="openInvestigationDrawer('${c.transaction_id}')">
               Manage
             </button>
           </td>
@@ -1425,6 +1638,17 @@ async function loadCasesLedger() {
   }
 }
 
+function changeCasePage(delta) {
+  AppState.caseCurrentPage = Math.max(1, (AppState.caseCurrentPage || 1) + delta);
+  loadCasesLedger();
+}
+
+function setCasePageSize(size) {
+  AppState.caseLimit = parseInt(size, 10) || 25;
+  AppState.caseCurrentPage = 1;
+  loadCasesLedger();
+}
+
 async function loadCasesTimelineSubviews() {
   try {
     const res = await fetch('/api/v1/cases/timeline');
@@ -1433,42 +1657,75 @@ async function loadCasesTimelineSubviews() {
 
     // Daily Table
     const dailyBody = document.getElementById('daily-cases-table');
-    if (dailyBody) {
-      dailyBody.innerHTML = data.daily.map(d => `
-        <tr>
-          <td><strong>${d.date}</strong></td>
-          <td><span class="bengali-text">${d.date_bengali}</span></td>
-          <td><strong>${d.total_cases} cases</strong></td>
-          <td><span style="color:var(--success-green); font-weight:700;">${d.resolved_cases} resolved</span></td>
-          <td><span style="color:var(--danger-red); font-weight:700;">${d.open_cases} open</span></td>
-        </tr>
-      `).join('');
+    if (dailyBody && Array.isArray(data.daily)) {
+      dailyBody.innerHTML = data.daily.map(d => {
+        const rate = d.resolution_rate_pct ?? (d.total_cases > 0 ? Math.round((d.resolved_cases / d.total_cases) * 100) : 0);
+        const avgScore = d.avg_risk_score !== undefined ? d.avg_risk_score : '—';
+        return `
+          <tr>
+            <td><strong style="color:var(--text-primary); font-family:monospace;">${d.date}</strong></td>
+            <td><span class="bengali-text" style="color:var(--text-secondary); font-size:12px;">${d.date_bengali}</span></td>
+            <td><strong style="color:var(--text-primary);">${d.total_cases} cases</strong></td>
+            <td>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:11px;">
+                <span class="badge badge-low" style="color:var(--success-green);">${d.resolved_cases} resolved</span>
+                <span class="badge badge-medium" style="color:#B45309;">${d.under_review_cases || 0} review</span>
+                <span class="badge badge-high" style="color:var(--danger-red);">${d.open_cases} open</span>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="flex:1; height:6px; background:var(--border-color, #E2E8F0); border-radius:3px; overflow:hidden; min-width:60px;">
+                  <div style="width:${rate}%; height:100%; background:var(--success-green); border-radius:3px;"></div>
+                </div>
+                <span style="font-weight:700; font-size:12px; color:var(--success-green);">${rate}%</span>
+              </div>
+            </td>
+            <td><strong style="color:var(--text-primary); font-size:13px;">${avgScore}</strong></td>
+            <td>
+              <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px; font-weight:600;" onclick="caseFilterByDay('${d.date}')">
+                🔍 View Cases
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // Weekly Table
     const weeklyBody = document.getElementById('weekly-cases-table');
-    if (weeklyBody) {
-      weeklyBody.innerHTML = data.weekly.map(w => `
-        <tr>
-          <td><strong>${w.week}</strong></td>
-          <td>${w.cases} cases</td>
-          <td><span style="color:var(--success-green); font-weight:700;">${w.resolved} cases</span></td>
-          <td><span class="badge badge-channel">${w.velocity}</span></td>
-        </tr>
-      `).join('');
+    if (weeklyBody && Array.isArray(data.weekly)) {
+      weeklyBody.innerHTML = data.weekly.map(w => {
+        const volStr = w.volume_protected_bdt ? `৳${Number(w.volume_protected_bdt).toLocaleString()}` : '—';
+        return `
+          <tr>
+            <td><strong style="color:var(--text-primary);">${w.week}</strong></td>
+            <td><span style="font-size:12px; color:var(--text-secondary); font-family:monospace;">${w.start_date || ''} → ${w.end_date || ''}</span></td>
+            <td><strong style="color:var(--text-primary);">${w.cases} cases</strong></td>
+            <td><span style="color:var(--success-green); font-weight:700;">${w.resolved} cases</span></td>
+            <td><span class="badge badge-channel">${w.velocity}</span></td>
+            <td><strong style="color:var(--text-primary);">${volStr}</strong></td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // Monthly Table
     const monthlyBody = document.getElementById('monthly-cases-table');
-    if (monthlyBody) {
-      monthlyBody.innerHTML = data.monthly.map(m => `
-        <tr>
-          <td><strong>${m.month}</strong></td>
-          <td>${m.cases} cases</td>
-          <td><span style="color:var(--success-green); font-weight:700;">${m.resolved} resolved</span></td>
-          <td><strong>৳${m.volume_protected_bdt.toLocaleString()}</strong></td>
-        </tr>
-      `).join('');
+    if (monthlyBody && Array.isArray(data.monthly)) {
+      monthlyBody.innerHTML = data.monthly.map(m => {
+        const volStr = m.volume_protected_bdt ? `৳${Number(m.volume_protected_bdt).toLocaleString()}` : '—';
+        const rate = m.resolution_rate_pct ?? (m.cases > 0 ? Math.round((m.resolved / m.cases) * 100) : 0);
+        return `
+          <tr>
+            <td><strong style="color:var(--text-primary); font-size:14px;">${m.month}</strong></td>
+            <td><strong style="color:var(--text-primary);">${m.cases} cases</strong></td>
+            <td><span style="color:var(--success-green); font-weight:700;">${m.resolved} resolved</span></td>
+            <td><span class="badge badge-low" style="color:var(--success-green); font-weight:700;">${rate}%</span></td>
+            <td><strong style="color:var(--text-primary); font-size:14px;">${volStr}</strong></td>
+          </tr>
+        `;
+      }).join('');
     }
 
   } catch (err) {
@@ -1497,15 +1754,126 @@ function setCaseDateFilter(preset, btn) {
   btn.classList.add('active');
   AppState.caseDatePreset = preset;
   AppState.caseCurrentPage = 1;
+  
+  const filterIndicator = document.getElementById('case-active-date-filter');
+  if (filterIndicator) filterIndicator.style.display = 'none';
+
   loadCasesLedger();
 }
 
 function applyCaseFilters() {
-  AppState.caseStatusFilter = document.getElementById('case-status-select').value;
-  AppState.casePriorityFilter = document.getElementById('case-priority-select').value;
+  AppState.caseStatusFilter = document.getElementById('case-status-select')?.value || 'ALL';
+  AppState.casePriorityFilter = document.getElementById('case-priority-select')?.value || 'ALL';
   AppState.caseCurrentPage = 1;
   loadCasesLedger();
 }
+
+function caseFilterByDay(date) {
+  AppState.caseDatePreset = date;
+  AppState.caseCurrentPage = 1;
+  switchCaseSubview('all');
+
+  const filterIndicator = document.getElementById('case-active-date-filter');
+  if (filterIndicator) {
+    filterIndicator.style.display = 'inline-flex';
+    filterIndicator.innerHTML = `Date: <strong>${date}</strong> <button onclick="resetCaseFilters()" style="margin-left:6px; background:none; border:none; cursor:pointer; color:var(--danger-red); font-weight:bold;">✕</button>`;
+  }
+
+  // De-select quick pills
+  const pills = document.querySelectorAll('#subview-cases-all .filter-pill');
+  pills.forEach(p => p.classList.remove('active'));
+
+  loadCasesLedger();
+}
+
+function resetCaseFilters() {
+  AppState.caseStatusFilter = 'ALL';
+  AppState.casePriorityFilter = 'ALL';
+  AppState.caseDatePreset = 'ALL';
+  AppState.caseSearchQuery = '';
+  AppState.caseCurrentPage = 1;
+
+  const statusSel = document.getElementById('case-status-select');
+  if (statusSel) statusSel.value = 'ALL';
+  const prioSel = document.getElementById('case-priority-select');
+  if (prioSel) prioSel.value = 'ALL';
+  const searchInp = document.getElementById('case-search-input');
+  if (searchInp) searchInp.value = '';
+
+  const pills = document.querySelectorAll('#subview-cases-all .filter-pill');
+  pills.forEach((p, idx) => p.classList.toggle('active', idx === 0));
+
+  const filterIndicator = document.getElementById('case-active-date-filter');
+  if (filterIndicator) filterIndicator.style.display = 'none';
+
+  loadCasesLedger();
+}
+
+async function exportCasesCsv() {
+  try {
+    const params = new URLSearchParams({
+      page: 1,
+      limit: 100
+    });
+    if (AppState.caseStatusFilter && AppState.caseStatusFilter !== 'ALL') params.append('status', AppState.caseStatusFilter);
+    if (AppState.casePriorityFilter && AppState.casePriorityFilter !== 'ALL') params.append('priority', AppState.casePriorityFilter);
+    if (AppState.caseDatePreset && AppState.caseDatePreset !== 'ALL') params.append('date_preset', AppState.caseDatePreset);
+    if (AppState.caseSearchQuery) params.append('search', AppState.caseSearchQuery);
+
+    const res = await fetch(`/api/v1/cases?${params.toString()}`);
+    if (!res.ok) throw new Error('Failed to export');
+    const data = await res.json();
+    const items = Array.isArray(data.data) ? data.data : (data.data?.items || data.items || []);
+
+    if (items.length === 0) {
+      alert('No cases to export.');
+      return;
+    }
+
+    const headers = ['Case ID', 'Transaction ID', 'Customer ID', 'Type', 'Channel', 'Amount', 'Location', 'Status', 'Priority', 'Officer', 'Risk Score', 'Decision', 'Date'];
+    const rows = items.map(c => [
+      c.case_id,
+      c.transaction_id,
+      c.customer_id,
+      c.transaction_type || 'TRANSFER',
+      c.channel || 'APP',
+      c.amount || 0,
+      `"${c.location || 'Dhaka'}"`,
+      c.status,
+      c.priority,
+      `"${c.assigned_analyst || 'Unassigned'}"`,
+      c.risk_score,
+      c.decision || 'PENDING',
+      c.created_at || ''
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `upay_cases_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (err) {
+    console.error('Export CSV error:', err);
+    alert('Failed to export CSV: ' + err.message);
+  }
+}
+
+// Expose Case Management functions globally to window
+window.loadCasesLedger = loadCasesLedger;
+window.refreshCasesData = loadCasesLedger;
+window.changeCasePage = changeCasePage;
+window.setCasePageSize = setCasePageSize;
+window.loadCasesTimelineSubviews = loadCasesTimelineSubviews;
+window.switchCaseSubview = switchCaseSubview;
+window.handleCaseSearch = handleCaseSearch;
+window.setCaseDateFilter = setCaseDateFilter;
+window.applyCaseFilters = applyCaseFilters;
+window.caseFilterByDay = caseFilterByDay;
+window.resetCaseFilters = resetCaseFilters;
+window.exportCasesCsv = exportCasesCsv;
 
 // ============================================================================
 // MODEL DRIFT & VALIDATION ARTIFACTS
@@ -1645,8 +2013,29 @@ function updateUserInterfaceState(user) {
   const pillElem = document.getElementById('sidebar-role-pill');
 
   if (nameElem) nameElem.innerText = user.full_name || user.username;
-  if (roleElem) roleElem.innerText = `${user.role} • ${user.department || 'Fraud Ops'}`;
-  if (pillElem) pillElem.innerText = user.role.replace('_', ' ');
+  if (roleElem) {
+    if (user.role === 'CUSTOMER') {
+      roleElem.innerText = `Retail Customer • Wallet #01719283746`;
+    } else {
+      roleElem.innerText = `${user.role} • ${user.department || 'Fraud Ops'}`;
+    }
+  }
+  if (pillElem) {
+    pillElem.innerText = user.role.replace('_', ' ');
+    if (user.role === 'CUSTOMER') {
+      pillElem.style.background = 'rgba(124,58,237,0.15)';
+      pillElem.style.color = '#7C3AED';
+    } else if (user.role === 'ADMIN') {
+      pillElem.style.background = 'rgba(239,68,68,0.15)';
+      pillElem.style.color = 'var(--critical-red)';
+    } else if (user.role === 'SENIOR_OFFICER') {
+      pillElem.style.background = 'rgba(255,210,0,0.15)';
+      pillElem.style.color = 'var(--upay-yellow)';
+    } else {
+      pillElem.style.background = 'rgba(0,91,172,0.15)';
+      pillElem.style.color = 'var(--upay-blue)';
+    }
+  }
 
   if (avatarElem) {
     const initials = (user.full_name || user.username)
@@ -1656,6 +2045,19 @@ function updateUserInterfaceState(user) {
       .join('')
       .toUpperCase();
     avatarElem.innerText = initials || 'OP';
+    if (user.role === 'CUSTOMER') {
+      avatarElem.style.background = '#7C3AED';
+      avatarElem.style.color = '#fff';
+    } else if (user.role === 'ADMIN') {
+      avatarElem.style.background = 'var(--critical-red)';
+      avatarElem.style.color = '#fff';
+    } else if (user.role === 'SENIOR_OFFICER') {
+      avatarElem.style.background = 'var(--warning-amber)';
+      avatarElem.style.color = '#fff';
+    } else {
+      avatarElem.style.background = 'var(--upay-blue)';
+      avatarElem.style.color = '#fff';
+    }
   }
 
   // Also update live Admin Session Banner if admin view is mounted
@@ -1721,9 +2123,22 @@ function updateAdminSessionBanner(user) {
   }
 }
 
-function openAuthModal() {
+// ============================================================================
+// REAL-TIME SESSION DESK SWITCHER & AUTHENTICATION MODAL
+// ============================================================================
+let modalDesksCache = [];
+let modalDesksRoleFilter = 'ALL';
+
+async function openAuthModal() {
   const modal = document.getElementById('auth-modal');
-  if (modal) modal.style.display = 'flex';
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  // 1. Immediately reflect currently active session in hero card
+  updateModalCurrentSession();
+
+  // 2. Fetch and render real-time officer desks from server
+  await loadSwitchableDesks();
 }
 
 function closeAuthModal() {
@@ -1731,21 +2146,307 @@ function closeAuthModal() {
   if (modal) modal.style.display = 'none';
 }
 
+function handleAuthModalOverlayClick(e) {
+  if (e.target && e.target.id === 'auth-modal') {
+    closeAuthModal();
+  }
+}
+
+function switchAuthModalTab(tab) {
+  const desksTabBtn = document.getElementById('tab-btn-desks');
+  const manualTabBtn = document.getElementById('tab-btn-manual');
+  const desksPane = document.getElementById('tab-pane-desks');
+  const manualPane = document.getElementById('tab-pane-manual');
+
+  if (tab === 'desks') {
+    if (desksTabBtn) {
+      desksTabBtn.style.background = 'var(--upay-blue, #005BAC)';
+      desksTabBtn.style.color = '#fff';
+      desksTabBtn.style.border = 'none';
+    }
+    if (manualTabBtn) {
+      manualTabBtn.style.background = 'var(--surface-pure, #fff)';
+      manualTabBtn.style.color = 'var(--text-secondary, #64748B)';
+      manualTabBtn.style.border = '1px solid var(--border-subtle, #E2E8F0)';
+    }
+    if (desksPane) desksPane.style.display = 'block';
+    if (manualPane) manualPane.style.display = 'none';
+  } else {
+    if (manualTabBtn) {
+      manualTabBtn.style.background = 'var(--upay-blue, #005BAC)';
+      manualTabBtn.style.color = '#fff';
+      manualTabBtn.style.border = 'none';
+    }
+    if (desksTabBtn) {
+      desksTabBtn.style.background = 'var(--surface-pure, #fff)';
+      desksTabBtn.style.color = 'var(--text-secondary, #64748B)';
+      desksTabBtn.style.border = '1px solid var(--border-subtle, #E2E8F0)';
+    }
+    if (desksPane) desksPane.style.display = 'none';
+    if (manualPane) manualPane.style.display = 'block';
+  }
+}
+
+function updateModalCurrentSession() {
+  const user = (window.AuthService && AuthService.getCurrentUser()) || {
+    username: 'admin',
+    full_name: 'System Administrator',
+    role: 'ADMIN',
+    department: 'Fraud Operations Management'
+  };
+
+  const avatarEl = document.getElementById('modal-hero-avatar');
+  const nameEl = document.getElementById('modal-hero-name');
+  const usernameEl = document.getElementById('modal-hero-username');
+  const roleEl = document.getElementById('modal-hero-role-pill');
+  const deptEl = document.getElementById('modal-hero-dept');
+
+  if (nameEl) nameEl.innerText = user.full_name || user.username;
+  if (usernameEl) usernameEl.innerText = `@${user.username}`;
+  if (deptEl) deptEl.innerText = user.department || 'Fraud Investigation Unit';
+
+  const initials = (user.full_name || user.username)
+    .split(' ')
+    .map(n => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'OP';
+
+  if (avatarEl) {
+    avatarEl.innerText = initials;
+    if (user.role === 'ADMIN') avatarEl.style.background = 'var(--upay-blue, #005BAC)';
+    else if (user.role === 'SENIOR_OFFICER') avatarEl.style.background = 'var(--warning-amber, #F59E0B)';
+    else if (user.role === 'ANALYST') avatarEl.style.background = 'var(--upay-blue, #005BAC)';
+    else if (user.role === 'CUSTOMER') avatarEl.style.background = '#7C3AED';
+    else avatarEl.style.background = 'var(--success-green, #10B981)';
+  }
+
+  if (roleEl) {
+    roleEl.innerText = `${(user.role || 'OFFICER').replace('_', ' ')} CLEARANCE`;
+    if (user.role === 'ADMIN') {
+      roleEl.style.background = 'rgba(239,68,68,0.15)';
+      roleEl.style.color = 'var(--critical-red, #EF4444)';
+    } else if (user.role === 'SENIOR_OFFICER') {
+      roleEl.style.background = 'rgba(245,158,11,0.15)';
+      roleEl.style.color = 'var(--warning-amber, #F59E0B)';
+    } else if (user.role === 'CUSTOMER') {
+      roleEl.style.background = 'rgba(124,58,237,0.15)';
+      roleEl.style.color = '#7C3AED';
+    } else {
+      roleEl.style.background = 'rgba(0,91,172,0.12)';
+      roleEl.style.color = 'var(--upay-blue, #005BAC)';
+    }
+  }
+}
+
+async function loadSwitchableDesks() {
+  const grid = document.getElementById('modal-desks-grid');
+  const countBadge = document.getElementById('modal-tab-desks-badge');
+
+  try {
+    const desks = await AuthService.getSwitchableSessions();
+    modalDesksCache = Array.isArray(desks) ? desks : [];
+    if (countBadge) countBadge.innerText = modalDesksCache.length;
+    renderModalDesksGrid();
+  } catch (err) {
+    console.error('[openAuthModal] Error fetching switchable desks:', err);
+    if (grid) {
+      grid.innerHTML = `
+        <div style="text-align:center; padding:20px; color:var(--text-secondary, #64748B); font-size:12px;">
+          Failed to load live sessions. Click Refresh or sign in with credentials.
+        </div>
+      `;
+    }
+  }
+}
+
+function refreshModalDesks() {
+  const syncBtn = event && event.currentTarget;
+  if (syncBtn) {
+    syncBtn.style.opacity = '0.6';
+    setTimeout(() => { if (syncBtn) syncBtn.style.opacity = '1'; }, 500);
+  }
+  loadSwitchableDesks();
+  showToast('Personnel desk directory refreshed from live database.', 'info');
+}
+
+function setModalRoleFilter(role, btn) {
+  modalDesksRoleFilter = role;
+  document.querySelectorAll('.desk-role-pill').forEach(p => {
+    p.style.background = 'var(--surface-pure, #fff)';
+    p.style.color = 'var(--text-secondary, #64748B)';
+    p.style.borderColor = 'var(--border-subtle, #E2E8F0)';
+  });
+  if (btn) {
+    btn.style.background = 'var(--upay-blue, #005BAC)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--upay-blue, #005BAC)';
+  }
+  renderModalDesksGrid();
+}
+
+function filterModalDesks() {
+  renderModalDesksGrid();
+}
+
+function renderModalDesksGrid() {
+  const grid = document.getElementById('modal-desks-grid');
+  if (!grid) return;
+
+  const searchInput = document.getElementById('modal-desk-search');
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const currentUser = (window.AuthService && AuthService.getCurrentUser()) || {};
+
+  let filtered = modalDesksCache.filter(u => {
+    // Role filter
+    if (modalDesksRoleFilter !== 'ALL' && u.role !== modalDesksRoleFilter) {
+      return false;
+    }
+    // Search filter
+    if (query) {
+      const matchName = (u.full_name || '').toLowerCase().includes(query);
+      const matchUname = (u.username || '').toLowerCase().includes(query);
+      const matchDept = (u.department || '').toLowerCase().includes(query);
+      const matchRole = (u.role || '').toLowerCase().includes(query);
+      return matchName || matchUname || matchDept || matchRole;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="text-align:center; padding:24px; color:var(--text-secondary, #64748B); font-size:12px; background:var(--base-canvas, #FAFBFC); border-radius:10px; border:1px dashed var(--border-subtle, #E2E8F0);">
+        No officer desks found matching your filter criteria.
+      </div>
+    `;
+    return;
+  }
+
+  // Render cards
+  grid.innerHTML = filtered.map(officer => {
+    const isCurrent = officer.username === currentUser.username;
+    
+    // Role color mappings
+    let roleColor = 'var(--upay-blue, #005BAC)';
+    let roleBg = 'rgba(0,91,172,0.1)';
+    let borderAccent = 'rgba(0,91,172,0.2)';
+
+    if (officer.role === 'ADMIN') {
+      roleColor = 'var(--critical-red, #EF4444)';
+      roleBg = 'rgba(239,68,68,0.12)';
+      borderAccent = 'rgba(239,68,68,0.3)';
+    } else if (officer.role === 'SENIOR_OFFICER') {
+      roleColor = 'var(--warning-amber, #F59E0B)';
+      roleBg = 'rgba(245,158,11,0.12)';
+      borderAccent = 'rgba(245,158,11,0.3)';
+    } else if (officer.role === 'CUSTOMER') {
+      roleColor = '#7C3AED';
+      roleBg = 'rgba(124,58,237,0.1)';
+      borderAccent = 'rgba(124,58,237,0.3)';
+    } else if (officer.role === 'VIEWER') {
+      roleColor = 'var(--success-green, #10B981)';
+      roleBg = 'rgba(16,185,129,0.1)';
+      borderAccent = 'rgba(16,185,129,0.3)';
+    }
+
+    const initials = (officer.full_name || officer.username)
+      .split(' ')
+      .map(n => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || 'OP';
+
+    const cardBg = isCurrent 
+      ? 'linear-gradient(135deg, rgba(0,91,172,0.06) 0%, rgba(255,205,0,0.05) 100%)' 
+      : 'var(--surface-pure, #fff)';
+    
+    const cardBorder = isCurrent 
+      ? '2px solid var(--upay-blue, #005BAC)' 
+      : '1px solid var(--border-subtle, #E2E8F0)';
+
+    return `
+      <div class="desk-card" style="background:${cardBg}; border:${cardBorder}; border-radius:12px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px; transition:all 0.15s ease; cursor:${isCurrent ? 'default' : 'pointer'};" onclick="${isCurrent ? '' : `switchDeskSession('${officer.username}')`}">
+        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+          <div style="width:38px; height:38px; border-radius:10px; background:${roleBg}; color:${roleColor}; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0; border:1px solid ${borderAccent};">
+            ${initials}
+          </div>
+          <div style="min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <strong style="font-size:13px; color:var(--text-primary, #0F172A); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${officer.full_name || officer.username}</strong>
+              <span style="font-size:11px; color:var(--text-secondary, #64748B); font-family:monospace;">@${officer.username}</span>
+              <span style="font-size:9.5px; font-weight:800; padding:1px 6px; border-radius:8px; background:${roleBg}; color:${roleColor}; text-transform:uppercase;">${officer.role.replace('_', ' ')}</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-secondary, #475569); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              ${officer.department || 'Fraud Operations'}
+            </div>
+          </div>
+        </div>
+
+        <div style="flex-shrink:0; display:flex; align-items:center; gap:6px;">
+          ${isCurrent ? `
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; background:rgba(16,185,129,0.15); color:var(--success-green, #10B981); border:1px solid rgba(16,185,129,0.3);">
+              <span style="width:6px; height:6px; border-radius:50%; background:var(--success-green, #10B981); display:inline-block; box-shadow:0 0 5px var(--success-green, #10B981);"></span>
+              ACTIVE DESK
+            </span>
+          ` : `
+            <button type="button" class="btn btn-secondary" onclick="event.stopPropagation(); switchDeskSession('${officer.username}')" style="font-size:11.5px; padding:5px 12px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:5px; background:var(--surface-pure, #fff); border:1px solid var(--border-subtle, #CBD5E1);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <span>Switch</span>
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function switchDeskSession(targetUsername) {
+  try {
+    const user = await AuthService.switchSession(targetUsername);
+    
+    // Update active hero in modal immediately
+    updateModalCurrentSession();
+    renderModalDesksGrid();
+
+    // Trigger universal UI update
+    updateUserInterfaceState(user);
+
+    showToast(`Active session switched to ${user.full_name} (${user.role})!`, 'success');
+
+    // If on admin or cases views, refresh data
+    if (AppState.currentView === 'admin-view' && typeof loadAdminViewData === 'function') {
+      loadAdminViewData();
+    } else if (AppState.currentView === 'cases-view' && typeof refreshCasesData === 'function') {
+      refreshCasesData();
+    }
+
+    // Auto-close modal after brief 400ms confirmation for seamless feel
+    setTimeout(() => {
+      closeAuthModal();
+      if (user.role === 'CUSTOMER') {
+        setTimeout(() => openCustomerAppealModal(), 200);
+      }
+    }, 450);
+
+  } catch (err) {
+    showToast(`Failed to switch session: ${err.message}`, 'error');
+  }
+}
+
 async function quickLogin(username, password) {
   try {
     const user = await AuthService.login(username, password);
     closeAuthModal();
+    updateUserInterfaceState(user);
     showToast(`Authenticated as ${user.full_name} (${user.role})`, 'success');
-    
-    // Refresh modal session indicator if open
-    const modalText = document.getElementById('modal-auth-status-text');
-    const switchBtn = document.getElementById('modal-switch-admin-btn');
-    if (modalText) {
-      modalText.innerHTML = `Authorized as <strong>@${user.username}</strong> (${user.role.replace('_', ' ')})`;
-      if (switchBtn) switchBtn.style.display = (user.role === 'ADMIN') ? 'none' : 'inline-block';
+
+    if (user.role === 'CUSTOMER') {
+      setTimeout(() => {
+        openCustomerAppealModal();
+      }, 300);
     }
 
-    if (AppState.currentView === 'admin-view') {
+    if (AppState.currentView === 'admin-view' && typeof loadAdminViewData === 'function') {
       loadAdminViewData();
     }
   } catch (err) {
@@ -1753,21 +2454,78 @@ async function quickLogin(username, password) {
   }
 }
 
+function autofillManualLogin(username, password) {
+  const identInput = document.getElementById('login-ident');
+  const pwdInput = document.getElementById('login-pwd');
+  if (identInput) identInput.value = username;
+  if (pwdInput) pwdInput.value = password;
+  switchAuthModalTab('manual');
+  showToast(`Autofilled demo credentials for @${username}`, 'info');
+}
+
+function toggleAuthPasswordVisibility() {
+  const pwd = document.getElementById('login-pwd');
+  if (pwd) {
+    pwd.type = (pwd.type === 'password') ? 'text' : 'password';
+  }
+}
+
 async function handleManualLogin(e) {
   e.preventDefault();
   const ident = document.getElementById('login-ident').value.trim();
   const pwd = document.getElementById('login-pwd').value;
+  const submitBtn = document.getElementById('login-submit-btn');
+
+  if (!ident || !pwd) {
+    showToast('Please enter both identifier and password', 'warning');
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <div class="spinner" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite;"></div>
+      <span>Verifying clearance...</span>
+    `;
+  }
+
   try {
     const user = await AuthService.login(ident, pwd);
-    closeAuthModal();
-    showToast(`Welcome, ${user.full_name}!`, 'success');
-    if (AppState.currentView === 'admin-view') {
+    updateModalCurrentSession();
+    updateUserInterfaceState(user);
+    showToast(`Welcome back, ${user.full_name}!`, 'success');
+    
+    if (AppState.currentView === 'admin-view' && typeof loadAdminViewData === 'function') {
       loadAdminViewData();
     }
+
+    setTimeout(() => {
+      closeAuthModal();
+    }, 350);
+
   } catch (err) {
     showToast(`Login failed: ${err.message}`, 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        <span>Authenticate & Activate Session</span>
+      `;
+    }
   }
 }
+
+function handleAuthLogout() {
+  AuthService.logout();
+  updateModalCurrentSession();
+  renderModalDesksGrid();
+  showToast('Logged out of active officer desk. Running in Viewer clearance.', 'info');
+  if (AppState.currentView === 'admin-view' && typeof loadAdminViewData === 'function') {
+    loadAdminViewData();
+  }
+}
+
 
 // ============================================================================
 // ADMINISTRATION & PERSONNEL MANAGEMENT
@@ -2210,5 +2968,425 @@ window.quickLogin = quickLogin;
 window.handleManualLogin = handleManualLogin;
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
+window.handleAuthModalOverlayClick = handleAuthModalOverlayClick;
+window.switchAuthModalTab = switchAuthModalTab;
+window.switchDeskSession = switchDeskSession;
+window.refreshModalDesks = refreshModalDesks;
+window.setModalRoleFilter = setModalRoleFilter;
+window.filterModalDesks = filterModalDesks;
+window.autofillManualLogin = autofillManualLogin;
+window.toggleAuthPasswordVisibility = toggleAuthPasswordVisibility;
+window.handleAuthLogout = handleAuthLogout;
 
 
+
+// ============================================================================
+// SCAM & PHISHING INTELLIGENCE MODULE (data_new Integration)
+// ============================================================================
+let scamFeedState = {
+  page: 1,
+  limit: 15,
+  domain: 'ALL',
+  label: 'ALL',
+  search: '',
+  total: 5416,
+  totalPages: 1
+};
+
+const SCAM_DEMO_SAMPLES = {
+  lottery: "অভিনন্দন! উপায় ২০২৬ মেগা ক্যাম্পেইনে আপনি জিতেছেন ৳২৫,০০০ ক্যাশ পুরস্কার! পুরস্কার ক্লেইম করতে এখনই ওটিপি দিন অথবা যোগাযোগ করুন ০১৮১২৩৪৫৬৭৮।",
+  account_block: "জরুরি সতর্কবার্তা! আপনার উপায় একাউন্টের তথ্য অসম্পূর্ণ থাকায় একাউন্ট স্থগিত করা হয়েছে। অ্যাকাউন্ট সক্রিয় রাখতে ২৪ ঘণ্টার মধ্যে পিন দিয়ে ভেরিফাই করুন।",
+  otp_theft: "আপনার উপায় নিরাপত্তা পিন কোড এবং ওটিপি (OTP) অন্য কারো সাথে শেয়ার করবেন না। তবে ভেরিফিকেশন অফিসারকে কোড দিয়ে সার্ভিস চালু রাখুন।",
+  job_fraud: "ঘরে বসেই মোবাইল দিয়ে প্রতিদিন ১,৫০০ থেকে ৩,০০০ টাকা আয় করুন। রেজিস্ট্রেশন ফি ৫০০ টাকা দিয়ে এখনই কাজ শুরু করুন।",
+  legitimate: "আপনার অ্যাকাউন্ট এ ৳২,৫০০ ক্যাশ-ইন সফল হয়েছে। ট্রানজেকশন আইডি TXN9872615। বর্তমান ব্যালেন্স ৳৭,৪২০। উপায় ব্যবহারের জন্য ধন্যবাদ।"
+};
+
+async function loadScamTypologiesGrid() {
+  await Promise.allSettled([
+    loadScamDatasetStats(),
+    loadScamThreatFeed(),
+    loadScamTypologyCards()
+  ]);
+  const inputEl = document.getElementById('scam-input-text');
+  const countEl = document.getElementById('scam-char-count');
+  if (inputEl && countEl && !inputEl._hasCountListener) {
+    inputEl._hasCountListener = true;
+    inputEl.addEventListener('input', () => {
+      countEl.innerText = `${inputEl.value.length} chars`;
+    });
+  }
+}
+
+async function loadScamDatasetStats() {
+  try {
+    const res = await ApiService.get('/api/v1/scam/stats');
+    if (res) {
+      const totalEl = document.getElementById('scam-kpi-total');
+      const scamEl = document.getElementById('scam-kpi-scam');
+      const legitEl = document.getElementById('scam-kpi-legit');
+      const domEl = document.getElementById('scam-kpi-domains');
+      if (totalEl) totalEl.innerText = Number(res.total_samples || 5416).toLocaleString();
+      if (scamEl) scamEl.innerText = `${Number(res.scam_samples || 3000).toLocaleString()} (${res.scam_ratio_pct || 55.4}%)`;
+      if (legitEl) legitEl.innerText = `${Number(res.legitimate_samples || 2416).toLocaleString()} (${(100 - (res.scam_ratio_pct || 55.4)).toFixed(1)}%)`;
+      if (domEl) domEl.innerText = `${res.domains_count || 30} Domains`;
+    }
+  } catch (err) {
+    console.warn('[Scam] Could not fetch live stats:', err);
+  }
+}
+
+async function loadScamThreatFeed() {
+  const tbody = document.getElementById('scam-feed-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:25px; color:var(--text-tertiary);">Loading threat intelligence corpus...</td></tr>`;
+
+  try {
+    const params = {
+      page: scamFeedState.page,
+      limit: scamFeedState.limit
+    };
+    if (scamFeedState.domain && scamFeedState.domain !== 'ALL') params.domain = scamFeedState.domain;
+    if (scamFeedState.label && scamFeedState.label !== 'ALL') params.label = scamFeedState.label;
+    if (scamFeedState.search) params.search = scamFeedState.search;
+
+    const res = await ApiService.get('/api/v1/scam/messages', params);
+    const items = res.items || [];
+    scamFeedState.total = res.total || 0;
+    scamFeedState.totalPages = res.total_pages || 1;
+
+    renderScamThreatFeed(items);
+  } catch (err) {
+    console.error('[Scam] Error loading feed:', err);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:25px; color:var(--danger-red);">Failed to load threat corpus.</td></tr>`;
+  }
+}
+
+function renderScamThreatFeed(items) {
+  const tbody = document.getElementById('scam-feed-tbody');
+  const pageInfo = document.getElementById('scam-feed-page-info');
+  const pageNum = document.getElementById('scam-feed-page-num');
+  const prevBtn = document.getElementById('btn-scam-prev');
+  const nextBtn = document.getElementById('btn-scam-next');
+
+  if (!tbody) return;
+
+  if (pageInfo) {
+    const start = (scamFeedState.page - 1) * scamFeedState.limit + 1;
+    const end = Math.min(scamFeedState.page * scamFeedState.limit, scamFeedState.total);
+    pageInfo.innerText = `Showing ${scamFeedState.total > 0 ? start : 0} - ${end} of ${scamFeedState.total.toLocaleString()} samples`;
+  }
+  if (pageNum) pageNum.innerText = `Page ${scamFeedState.page} of ${scamFeedState.totalPages}`;
+  if (prevBtn) prevBtn.disabled = scamFeedState.page <= 1;
+  if (nextBtn) nextBtn.disabled = scamFeedState.page >= scamFeedState.totalPages;
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">No messages matching filter criteria.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map(item => {
+    const isScam = item.label === 'scam' || item.label_binary === 1;
+    const labelBadge = isScam
+      ? `<span class="badge badge-critical" style="font-size:11px;">SCAM</span>`
+      : `<span class="badge badge-low" style="font-size:11px; background:var(--success-tint); color:var(--success-green);">LEGIT</span>`;
+
+    const riskLevelBadge = item.risk_level === 'CRITICAL'
+      ? `<span class="badge" style="background:rgba(239,68,68,0.12); color:var(--danger-red); font-size:11px; font-weight:700;">CRITICAL</span>`
+      : item.risk_level === 'HIGH'
+      ? `<span class="badge" style="background:rgba(245,158,11,0.12); color:var(--warning-amber); font-size:11px; font-weight:700;">HIGH</span>`
+      : `<span class="badge" style="background:rgba(16,185,129,0.12); color:var(--success-green); font-size:11px; font-weight:700;">LOW</span>`;
+
+    const rawText = item.text_bn || '';
+    const safeEscaped = rawText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+    return `
+      <tr>
+        <td style="font-family:monospace; font-weight:600; font-size:11px; color:var(--text-secondary);">${item.sample_id || 'ID-NA'}</td>
+        <td style="max-width:320px;">
+          <div class="bengali-text" style="font-size:13px; line-height:1.4; color:var(--text-primary); max-height:48px; overflow:hidden; text-overflow:ellipsis;">
+            ${rawText}
+          </div>
+          ${item.attack_goal ? `<div style="font-size:11px; color:var(--text-tertiary); margin-top:2px;"><strong>Goal:</strong> ${item.attack_goal}</div>` : ''}
+        </td>
+        <td style="font-size:12px;">
+          <div style="font-weight:700; color:var(--upay-blue);">${item.domain || 'D01'}</div>
+          <div style="font-size:11px; color:var(--text-secondary);">${item.persuasion_tactic || 'General'}</div>
+        </td>
+        <td>
+          <span class="badge" style="background:var(--surface-muted); color:var(--text-primary); font-size:11px;">
+            ${item.implied_brand || 'upay'}
+          </span>
+        </td>
+        <td>${labelBadge}</td>
+        <td>${riskLevelBadge}</td>
+        <td style="text-align:center;">
+          <button class="btn btn-sm btn-outline" onclick="testScamFeedMessage('${safeEscaped}')" style="font-size:11px; padding:3px 8px; font-weight:600;" title="Load into live AI scanner">
+            ⚡ Test
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterScamThreatFeed() {
+  const domSelect = document.getElementById('feed-domain-filter');
+  const lblSelect = document.getElementById('feed-label-filter');
+  if (domSelect) scamFeedState.domain = domSelect.value;
+  if (lblSelect) scamFeedState.label = lblSelect.value;
+  scamFeedState.page = 1;
+  loadScamThreatFeed();
+}
+
+let scamSearchDebounce = null;
+function handleScamFeedSearch(event) {
+  clearTimeout(scamSearchDebounce);
+  scamSearchDebounce = setTimeout(() => {
+    const input = document.getElementById('feed-search-input');
+    if (input) {
+      scamFeedState.search = input.value.trim();
+      scamFeedState.page = 1;
+      loadScamThreatFeed();
+    }
+  }, 300);
+}
+
+function changeScamFeedPage(delta) {
+  const target = scamFeedState.page + delta;
+  if (target >= 1 && target <= scamFeedState.totalPages) {
+    scamFeedState.page = target;
+    loadScamThreatFeed();
+  }
+}
+
+function setScamScannerSample(key) {
+  const sample = SCAM_DEMO_SAMPLES[key];
+  if (!sample) return;
+  const input = document.getElementById('scam-input-text');
+  const countEl = document.getElementById('scam-char-count');
+  if (input) {
+    input.value = sample;
+    if (countEl) countEl.innerText = `${sample.length} chars`;
+    handleScamScanSubmit();
+  }
+}
+
+function clearScamScanner() {
+  const input = document.getElementById('scam-input-text');
+  const countEl = document.getElementById('scam-char-count');
+  const placeholder = document.getElementById('scam-results-placeholder');
+  const content = document.getElementById('scam-results-content');
+  const statusBadge = document.getElementById('scam-diag-status');
+
+  if (input) input.value = '';
+  if (countEl) countEl.innerText = '0 chars';
+  if (placeholder) placeholder.style.display = 'block';
+  if (content) content.style.display = 'none';
+  if (statusBadge) {
+    statusBadge.innerText = 'READY';
+    statusBadge.style.background = 'var(--surface-pure)';
+    statusBadge.style.color = 'var(--text-tertiary)';
+  }
+}
+
+function focusScamScanner() {
+  const input = document.getElementById('scam-input-text');
+  if (input) {
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    input.focus();
+  }
+}
+
+function testScamFeedMessage(text) {
+  const input = document.getElementById('scam-input-text');
+  const countEl = document.getElementById('scam-char-count');
+  if (input) {
+    input.value = text;
+    if (countEl) countEl.innerText = `${text.length} chars`;
+    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    handleScamScanSubmit();
+  }
+}
+
+async function handleScamScanSubmit() {
+  const input = document.getElementById('scam-input-text');
+  const channelSelect = document.getElementById('scam-channel-select');
+  const btn = document.getElementById('btn-run-scam-scan');
+  const spinner = document.getElementById('scan-btn-spinner');
+
+  if (!input || !input.value.trim()) {
+    showToast('Please enter a message to analyze.', 'warning');
+    return;
+  }
+
+  const text = input.value.trim();
+  const channel = channelSelect ? channelSelect.value : 'SMS';
+
+  if (btn) btn.disabled = true;
+  if (spinner) spinner.style.display = 'inline';
+
+  try {
+    const res = await ApiService.post('/api/v1/scam/analyze', { text, channel });
+    renderScamScanResult(res);
+  } catch (err) {
+    console.error('[Scam Scan Error]:', err);
+    showToast('Failed to run scam analysis: ' + (err.message || 'Server error'), 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+  }
+}
+
+function renderScamScanResult(res) {
+  const placeholder = document.getElementById('scam-results-placeholder');
+  const content = document.getElementById('scam-results-content');
+  const statusBadge = document.getElementById('scam-diag-status');
+  const scoreVal = document.getElementById('scam-score-value');
+  const scoreBar = document.getElementById('scam-score-bar');
+  const sevBadge = document.getElementById('scam-severity-badge');
+  const brandSpan = document.getElementById('scam-implied-brand');
+  const tacticSpan = document.getElementById('scam-persuasion-tactic');
+  const classTag = document.getElementById('scam-classification-tag');
+  const tokensContainer = document.getElementById('scam-tokens-container');
+  const actionText = document.getElementById('scam-action-text');
+  const actionBox = document.getElementById('scam-action-box');
+
+  if (placeholder) placeholder.style.display = 'none';
+  if (content) content.style.display = 'block';
+
+  const proba = res.scam_probability !== undefined ? res.scam_probability : (res.risk_score / 100);
+  const probaPct = (proba * 100).toFixed(1);
+  const isScam = res.is_scam;
+
+  if (statusBadge) {
+    statusBadge.innerText = 'AI INFERENCE COMPLETE';
+    statusBadge.style.background = isScam ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)';
+    statusBadge.style.color = isScam ? 'var(--danger-red)' : 'var(--success-green)';
+  }
+
+  if (scoreVal) {
+    scoreVal.innerText = `${probaPct}%`;
+    scoreVal.style.color = isScam ? 'var(--danger-red)' : 'var(--success-green)';
+  }
+
+  if (scoreBar) {
+    scoreBar.style.width = `${Math.max(5, probaPct)}%`;
+    scoreBar.style.background = isScam ? 'var(--danger-red)' : 'var(--success-green)';
+  }
+
+  if (sevBadge) {
+    const sev = res.severity || (isScam ? 'HIGH' : 'LOW');
+    sevBadge.innerText = sev;
+    sevBadge.className = `badge ${sev === 'CRITICAL' ? 'badge-critical' : (sev === 'HIGH' ? 'badge-high' : (sev === 'MEDIUM' ? 'badge-medium' : 'badge-low'))}`;
+  }
+
+  if (brandSpan) brandSpan.innerText = res.implied_brand || 'upay';
+  if (tacticSpan) {
+    tacticSpan.innerText = res.persuasion_tactic || 'General';
+    tacticSpan.style.color = isScam ? 'var(--danger-red)' : 'var(--success-green)';
+  }
+
+  if (classTag) {
+    classTag.innerText = isScam ? 'CONFIRMED SCAM ATTACK' : 'BENIGN / LEGITIMATE';
+    classTag.style.color = isScam ? 'var(--danger-red)' : 'var(--success-green)';
+  }
+
+  if (tokensContainer) {
+    const tokens = res.top_tokens || [];
+    if (tokens.length > 0) {
+      tokensContainer.innerHTML = tokens.map(t => `
+        <span class="badge" style="background:rgba(239,68,68,0.08); color:var(--danger-red); font-size:11px; padding:2px 8px; border:1px solid rgba(239,68,68,0.2);">
+          ${t.token} <small style="opacity:0.75;">(${t.weight})</small>
+        </span>
+      `).join('');
+    } else if (res.matched_keywords && res.matched_keywords.length > 0) {
+      tokensContainer.innerHTML = res.matched_keywords.map(kw => `
+        <span class="badge" style="background:rgba(239,68,68,0.08); color:var(--danger-red); font-size:11px; padding:2px 8px;">
+          ${kw}
+        </span>
+      `).join('');
+    } else {
+      tokensContainer.innerHTML = `<span style="font-size:11px; color:var(--text-tertiary);">No high-risk scam tokens detected.</span>`;
+    }
+  }
+
+  if (actionText) actionText.innerText = res.action_recommendation || (isScam ? 'BLOCK & ESCALATE TO BFIU' : 'ALLOW / LEGITIMATE');
+  if (actionBox) {
+    if (isScam) {
+      actionBox.style.background = 'rgba(239,68,68,0.10)';
+      actionBox.style.borderColor = 'rgba(239,68,68,0.30)';
+      actionBox.style.color = '#991B1B';
+    } else {
+      actionBox.style.background = 'rgba(16,185,129,0.10)';
+      actionBox.style.borderColor = 'rgba(16,185,129,0.30)';
+      actionBox.style.color = '#065F46';
+    }
+  }
+}
+
+async function loadScamTypologyCards() {
+  const container = document.getElementById('scam-typology-cards');
+  if (!container) return;
+
+  try {
+    const res = await ApiService.get('/api/v1/scam/typologies');
+    const typologies = res.typologies || [];
+    if (typologies.length === 0) return;
+
+    container.innerHTML = typologies.map(t => {
+      const sevClass = t.severity === 'CRITICAL' ? 'badge-critical' : (t.severity === 'HIGH' ? 'badge-high' : 'badge-medium');
+      return `
+        <div class="card" style="padding:16px; border-left:4px solid ${t.severity === 'CRITICAL' ? 'var(--danger-red)' : (t.severity === 'HIGH' ? 'var(--warning-amber)' : 'var(--upay-blue)')};">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <div style="font-size:14px; font-weight:800; color:var(--text-primary);">${t.pattern_name}</div>
+            <span class="badge ${sevClass}" style="font-size:10px;">${t.severity}</span>
+          </div>
+          <div style="font-size:11px; font-family:monospace; color:var(--text-tertiary); margin-bottom:6px;">${t.pattern_code}</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+            <strong>Rule Criteria:</strong> <span style="font-family:monospace; color:var(--text-primary);">${t.criteria}</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); background:var(--surface-muted); padding:8px 10px; border-radius:var(--radius-sm);">
+            <strong>Scenario:</strong> ${t.scenario}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.warn('[Scam] Could not load typologies:', err);
+  }
+}
+
+// Expose Scam Module to window
+window.loadScamTypologiesGrid = loadScamTypologiesGrid;
+window.loadScamDatasetStats = loadScamDatasetStats;
+window.loadScamThreatFeed = loadScamThreatFeed;
+window.filterScamThreatFeed = filterScamThreatFeed;
+window.handleScamFeedSearch = handleScamFeedSearch;
+window.changeScamFeedPage = changeScamFeedPage;
+window.setScamScannerSample = setScamScannerSample;
+window.clearScamScanner = clearScamScanner;
+window.focusScamScanner = focusScamScanner;
+window.testScamFeedMessage = testScamFeedMessage;
+window.handleScamScanSubmit = handleScamScanSubmit;
+
+// ============================================================================
+// GLOBAL MODAL CONTAINMENT & ESCAPE KEY DISMISSAL
+// ============================================================================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (typeof closeAuthModal === 'function') closeAuthModal();
+    if (typeof closeCustomerAppealModal === 'function') closeCustomerAppealModal();
+    if (typeof closeCreateUserModal === 'function') closeCreateUserModal();
+    if (typeof closeInvestigationDrawerDirectly === 'function') closeInvestigationDrawerDirectly();
+    const lightbox = document.getElementById('image-lightbox-modal');
+    if (lightbox) lightbox.style.display = 'none';
+  }
+});
+
+// Expose Customer Appeal & Modal handlers globally
+window.openCustomerAppealModal = openCustomerAppealModal;
+window.closeCustomerAppealModal = closeCustomerAppealModal;
+window.openCustomerAppealForCurrentTx = openCustomerAppealForCurrentTx;
+window.openCustomerAppealForTx = openCustomerAppealForTx;
+window.handleModalOverlayClick = handleModalOverlayClick;
+window.simulateAppealResolution = simulateAppealResolution;

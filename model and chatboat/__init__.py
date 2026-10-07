@@ -11,7 +11,10 @@ from .models.model_runner import (
     explain_risk,
     get_model,
     TransactionRiskModel,
-    CANONICAL_FEATURES
+    CANONICAL_FEATURES,
+    predict_scam,
+    get_scam_model,
+    ScamNLPModel
 )
 
 from .chatbot.chat_runner import (
@@ -35,6 +38,9 @@ __all__ = [
     "get_model",
     "TransactionRiskModel",
     "CANONICAL_FEATURES",
+    "predict_scam",
+    "get_scam_model",
+    "ScamNLPModel",
     "ask_chatbot",
     "get_chatbot",
     "ChatAssistant",
@@ -43,3 +49,4 @@ __all__ = [
     "get_transaction_by_id",
     "get_customer_by_id"
 ]
+
